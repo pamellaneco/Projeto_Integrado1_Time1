@@ -1,0 +1,35 @@
+{
+  "name": "turnus",
+  "version": "0.0.1",
+  "main": "dist-electron/main/index.js",
+  "description": "Sistema para gerência de escalas SAAE.",
+  "author": "Luiz Sena",
+  "license": "MIT",
+  "private": true,
+  "debug": {
+    "env": {
+      "VITE_DEV_SERVER_URL": "http://127.0.0.1:7777/"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build && electron-builder",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "electron": "^38.2.0",
+    "electron-builder": "^24.13.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^7.1.7",
+    "vite-plugin-electron": "^0.29.0",
+    "vite-plugin-electron-renderer": "^0.14.6"
+  }
+}
