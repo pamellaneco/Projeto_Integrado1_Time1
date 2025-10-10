@@ -5,12 +5,14 @@ import App from './App'
 import './index.css'
 
 import './demos/ipc'
+import EmployeesList from './components/EmployeesList'
 // If you want use Node.js, the`nodeIntegration` needs to be enabled in the Main process.
 // import './demos/node'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />
+    <EmployeesList />
   </React.StrictMode>,
 )
 
