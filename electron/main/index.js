@@ -5,6 +5,7 @@ import path from 'node:path'
 import os from 'node:os'
 import { update } from './update'
 import "../database/setup";
+import { migrateDB } from '../database/migrate'
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -83,7 +84,11 @@ async function createWindow() {
 }
 
 // Creates the window of the app.
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  migrateDB();
+
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   win = null
