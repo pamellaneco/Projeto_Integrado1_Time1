@@ -22,8 +22,10 @@
     "db:reset": "electron electron/database/reset.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "better-sqlite3": "^12.4.1",
-    "electron-updater": "^6.3.9"
+    "electron-updater": "^6.3.9",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
