@@ -46,7 +46,7 @@ const indexHtml = path.join(RENDERER_DIST, 'index.html')
 async function createWindow() {
   win = new BrowserWindow({
     title: 'Main window',
-    icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
+    icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
     webPreferences: {
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
@@ -81,7 +81,8 @@ async function createWindow() {
   update(win)
 }
 
-app.whenReady().then(createWindow)
+// Creates the window of the app.
+app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
   win = null
