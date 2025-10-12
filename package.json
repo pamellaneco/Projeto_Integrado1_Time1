@@ -25,6 +25,7 @@
     "bcryptjs": "^3.0.2",
     "better-sqlite3": "^12.4.1",
     "electron-updater": "^6.3.9",
+    "jsonwebtoken": "^9.0.2",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

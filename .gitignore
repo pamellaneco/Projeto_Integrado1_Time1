@@ -35,3 +35,6 @@ yarn.lock
 # Output
 build
 dist
+
+# Env
+*.env
