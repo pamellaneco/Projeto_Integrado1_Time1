@@ -1,9 +1,8 @@
-import { db } from "./setup.js"
 import path, { join } from "node:path";
 import process from "node:process";
 import fs from "node:fs";
 
-export const migrateDB = () => {
+export const migrateDB = (db) => {
   try {
     const migrationsDir = join(process.cwd(), 'database', 'migrations')
     const currentVersion = db.pragma('user_version', { simple: true })
@@ -23,9 +22,9 @@ export const migrateDB = () => {
       }
     });
 
-    console.log("✅ Migration successfully completed.");
+    console.log("Database migration successfully completed.");
   } catch (error) {
-    console.error(`❌ Error on applying migration: ${JSON.stringify(error)}`);
+    console.error(`Error on applying migration: ${JSON.stringify(error)}`);
     console.log("It might be necessary reseting the database.");
   }
 }
