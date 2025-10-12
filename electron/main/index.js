@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import os from 'node:os'
 import { update } from './update'
+import { db } from "../database/setup";
+import { migrateDB } from '../database/migrate'
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -46,7 +48,7 @@ const indexHtml = path.join(RENDERER_DIST, 'index.html')
 async function createWindow() {
   win = new BrowserWindow({
     title: 'Main window',
-    icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
+    icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
     webPreferences: {
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
@@ -81,7 +83,12 @@ async function createWindow() {
   update(win)
 }
 
-app.whenReady().then(createWindow)
+// Creates the window of the app.
+app.whenReady().then(() => {
+  migrateDB(db);
+
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   win = null

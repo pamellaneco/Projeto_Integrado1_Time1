@@ -14,10 +14,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && electron-builder",
-    "preview": "vite preview"
+    "build": "vite build && electron-builder",
+    "prebuild": "npm run rebuild",
+    "preview": "vite preview",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "postinstall": "npm run rebuild",
+    "db:reset": "electron electron/database/reset.js"
   },
   "dependencies": {
+    "better-sqlite3": "^12.4.1",
     "electron-updater": "^6.3.9"
   },
   "devDependencies": {
@@ -26,6 +31,7 @@
     "@vitejs/plugin-react": "^4.3.3",
     "electron": "^38.2.0",
     "electron-builder": "^24.13.3",
+    "electron-rebuild": "^3.2.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "vite": "^7.1.7",
