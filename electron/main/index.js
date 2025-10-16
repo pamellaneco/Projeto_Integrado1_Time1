@@ -6,6 +6,7 @@ import os from 'node:os'
 import { update } from './update'
 import { db } from "../database/setup";
 import { migrateDB } from '../database/migrate'
+import { getAllEmployees } from '../database/employeeRepository'
 import { AuthService } from '../preload/services/auth'
 
 const require = createRequire(import.meta.url)
@@ -128,4 +129,9 @@ ipcMain.handle('open-win', (_, arg) => {
   } else {
     childWindow.loadFile(indexHtml, { hash: arg })
   }
+})
+
+ipcMain.handle('get-all-employees', async (event) => {
+  const employees = await getAllEmployees();
+  return employees;
 })
