@@ -1,0 +1,233 @@
+/* ==========================================================================
+   1. VARIÁVEIS DE COR
+   - Defina aqui as cores reutilizáveis usadas pela tabela de funcionários.
+   - Facilita temas e atualizações sem mexer em vários seletores.
+   ========================================================================== */
+
+:root {
+  /* Fundo e cores primárias */
+  --cor-fundo-tela: #FFFFFF;              /* fundo do container principal */
+  --cor-primaria: #3A5566;                /* cor principal (botões, highlights) */
+
+  /* Texto */
+  --cor-texto-titulo: #1D2B33;            /* título da página */
+  --cor-texto-corpo: #00000000;           /* texto nas células da tabela (cor padrão) */
+  --cor-texto-label: #1D2B33;             /* labels menores (ex: "Pesquisar") */
+
+  /* Bordas e separadores */
+  --cor-borda-input: #F9F9F9;             /* borda de inputs */
+  --cor-borda-tabela: #DBDBDB;            /* separador entre linhas da tabela */
+
+  /* Tags/pílulas */
+  --cor-tag-restricao-fundo: #1D2B33;     /* fundo das tags de restrição */
+  --cor-tag-restricao-texto: #FFFFFF;    /* texto das tags de restrição */
+  --cor-tag-disponibilidade-fundo: #3A5566; /* fundo das tags de disponibilidade */
+  --cor-tag-disponibilidade-texto: #FFFFFF; /* texto das tags de disponibilidade */
+}
+
+/* ==========================================================================
+   2. LAYOUT PRINCIPAL DA TELA
+   ========================================================================== */
+
+.funcionarios-container {
+  /* Container principal da tela de funcionários.
+     - Define fundo, padding geral e a fonte usada na seção.
+     - Mantemos padding amplo para espaçamento conforme o design. */
+  background-color: var(--cor-fundo-tela);
+  padding: 44px 21px;
+  font-family: 'Poppins', sans-serif; /* ajuste se o projeto usar outra família */
+}
+/* ==========================================================================
+   3. HEADER (TÍTULO, FILTROS E BOTÕES)
+   ========================================================================== */
+
+.funcionarios-header {
+  /* Header: título + área de filtros/ações.
+     - Usamos flex-wrap para suportar telas menores (quebra para segunda linha).
+     - align-items: flex-end alinha o conjunto visualmente à base do título. */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 15px;
+  margin-bottom: 33px;
+}
+
+.funcionarios-header h1 {
+  /* Título principal da seção.
+     - width:100% força ocupar a primeira linha inteira do header flex. */
+  width: 100%;
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--cor-texto-titulo);
+}
+
+.filtros {
+  /* Agrupa os controles de filtro (search, dropdowns, etc.).
+     - flex-grow permite que os filtros usem o espaço restante entre título e ações. */
+  display: flex;
+  gap: 16px;
+  flex-grow: 1;
+}
+
+.filter-group {
+  /* Pequeno wrapper para cada campo de filtro.
+     - Coloca label acima do input e aplica espaçamento consistente. */
+  font-size: 12px;
+  font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.filter-group label {
+  /* Label do filtro (menor que títulos e células). */
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--cor-texto-label);
+}
+
+.acoes {
+  /* Container de botões à direita do header. */
+  display: flex;
+  gap: 16px;
+}
+
+/* ==========================================================================
+   4. ELEMENTOS DE FORMULÁRIO (INPUTS E BOTÕES) -> ajustar depois
+   ========================================================================== */
+
+.search-input, .select-filter {
+  /* Estilo base para inputs e selects usados nos filtros.
+     - height fixo para alinhar visualmente com botões.
+     - padding horizontal para espaço interno. */
+  height: 40px;
+  border: 1px solid #CED4DA;
+  border-radius: 6px;
+  padding: 0 12px;
+  font-size: 14px;
+  background-color: #FFFFFF;
+}
+
+/* Largura específica para o campo de busca, baseado no que você encontrou */
+.search-input {
+  /* Largura maior para o campo de busca. Ajuste conforme responsividade. */
+  width: 276px;
+}
+
+/* Largura menor para os dropdowns, como no design */
+.select-filter {
+  /* Largura padrão para dropdowns de filtro. */
+  width: 180px;
+}
+
+/* --- ESTILOS FINAIS PARA OS BOTÕES --- */
+
+.btn {
+  /* Estilos base para botões usados no header e linhas da tabela.
+     - transition suave melhora a percepção de interatividade. */
+  height: 40px;
+  padding: 0 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-primary {
+  /* Botão de ação principal (ex: Cadastrar)
+     - cor de fundo usa a variável --cor-primaria para consistência de tema. */
+  background-color: var(--cor-primaria);
+  color: white;
+}
+
+.btn-secondary {
+  /* Botão secundário com borda na cor primária. */
+  background-color: #FFFFFF;
+  color: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+}
+
+
+/* ==========================================================================
+   5. TABELA
+   ========================================================================== */
+
+table {
+  /* Estrutura básica da tabela: ocupa toda a largura disponível
+     e remove o espaçamento duplicado entre células. */
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  /* Regras comuns a cabeçalhos e células de dados.
+     - padding controla espaçamento interno; ajuste se precisar responsividade. */
+  padding: 16px;
+  border-bottom: 1px solid var(--cor-borda-tabela);
+  text-align: left;
+  vertical-align: middle;
+}
+
+th {
+  /* Cabeçalhos da tabela: um pouco maiores e mais pesados. */
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cor-texto-label);
+}
+
+td {
+  /* Células de conteúdo: texto padrão do corpo. */
+  font-size: 14px;
+  color: var(--cor-texto-corpo);
+}
+
+
+/* ==========================================================================
+   6. TAGS (As pílulas coloridas)
+   ========================================================================== */
+
+.tag-group {
+  /* Container de tags/pílulas dentro de uma célula.
+     - flex-wrap permite múltiplas tags sem quebrar o layout. */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  /* Base visual das pílulas: espaçamento, borda arredondada e peso de fonte. */
+  padding: 5px 12px;
+  border-radius: 16px; /* pill shape */
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tag-restricao {
+  /* Tag que indica restrição (cor mais escura). */
+  background-color: #495057;
+  color: #FFFFFF;
+}
+
+.tag-disponibilidade {
+  /* Tag que indica disponibilidade (cor mais clara). */
+  background-color: #D1E7DD;
+  color: #0F5132;
+}
+
+/* ==========================================================================
+   7. FOOTER (PAGINAÇÃO)
+   ========================================================================== */
+
+.funcionarios-footer {
+  /* Rodapé com controlos de paginação. */
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 24px;
+  padding-top: 24px;
+  font-size: 14px;
+  color: #6C757D;
+}
