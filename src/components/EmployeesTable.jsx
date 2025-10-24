@@ -3,13 +3,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { getAllEmployees } from '../employeeService.js'; // Ajuste o caminho se necessário
 import './EmployeesTable.css'; // Crie este arquivo para os estilos
+import SearchIcon from './SearchIcon';
+import EditIcon from './EditIcon';
 
 // DADOS MOCKADOS
 const mockFuncionarios = [
-  { id: 1, name: 'Gideony', function: 'Operador da ETA', constraints: 'Final de Semana, Feriados', disponibility: 'Plantão da Tarde' },
-  { id: 2, name: 'José Airton', function: 'Encanador', constraints: 'Plantão da ETA', disponibility: 'Plantão da Tarde, Feriados' },
-  { id: 3, name: 'Gideony', function: 'Operador da ETA', constraints: 'Final de Semana, Feriados', disponibility: 'Plantão da Tarde' },
-  { id: 4, name: 'José Airton', function: 'Encanador', constraints: 'Plantão da ETA', disponibility: 'Plantão da Tarde, Feriados' },
+  { id: 1, name: 'Gideony', function: 'Operador da ETA', cellphone: '(11) 98765-4321' },
+  { id: 2, name: 'José Airton', function: 'Encanador', cellphone: '(21) 91234-5678' },
+  { id: 3, name: 'Mariana', function: 'Técnica de Tratamento', cellphone: '(31) 99876-5432' },
+  { id: 4, name: 'Carlos', function: 'Supervisor', cellphone: '(41) 91111-2222' },
 ];
 
 function EmployeesTable() {
@@ -27,8 +29,22 @@ function EmployeesTable() {
       try {
         setLoading(true);
         const data = await getAllEmployees();
+        // Mescla dados do backend com os mocks para garantir que `cellphone` exista.
+        // Procura um mock correspondente por `id` ou `name` e usa o `cellphone` mock quando faltar.
+        // Se o backend não retornar dados, usa os mocks completos.
+        // eslint-disable-next-line no-console
         console.log('Dados recebidos do back-end:', data);
-        setAllEmployees(data);
+        let merged = mockFuncionarios;
+        if (Array.isArray(data) && data.length > 0) {
+          merged = data.map((d) => {
+            const mock = mockFuncionarios.find(m => m.id === d.id || m.name === d.name);
+            return {
+              ...d,
+              cellphone: d.cellphone || (mock && mock.cellphone) || '—',
+            };
+          });
+        }
+        setAllEmployees(merged);
       } catch (err) {
         console.error("Erro ao buscar dados dos funcionários:", err);
         setError(err.message || "Erro desconhecido");
@@ -37,7 +53,7 @@ function EmployeesTable() {
       }
     };
 
-    // fetchEmployees();
+    fetchEmployees();
   }, []);
 
   // --- LÓGICA DE FILTRO (FRONT-END) ---
@@ -72,65 +88,50 @@ function EmployeesTable() {
   }
 
   // --- RENDERIZAÇÃO PRINCIPAL (JSX ESTRUTURADO COMO O FIGMA) ---
+  // DEBUG: verificar dados em runtime (remover quando ok)
+  // Abra o DevTools para ver o conteúdo de `allEmployees`
+  // console será visível ao rodar `npm run dev`.
   return (
     <div className="funcionarios-container">
-      // DENTRO DO SEU return() EM EmployeesTable.jsx
 
-<header className="funcionarios-header">
+<header className="page-header">
   <h1>Funcionários</h1>
-  
-  <div className="filtros">
-    <div className="filter-group">
-      <label>Pesquisar</label>
-      <input 
-        type="text" 
-        placeholder="Nome, cargo/função" 
-        className="search-input"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-    </div>
-    {/* Os outros filtros virão aqui depois */}
-  </div>
-  
-  <div className="acoes">
-    <button className="btn btn-secondary">EDITAR</button>
-    <button className="btn btn-primary">CADASTRAR FUNCIONÁRIO</button>
-  </div>
+  <button className="btn btn-primary">CADASTRAR FUNCIONÁRIO</button>
 </header>
+
+<div className="search-container">
+  <div className="search-input-wrapper">
+    <input 
+      type="text" 
+      placeholder="Nome, cargo/função" 
+      className="search-input"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+    <div className="search-icon">
+      <SearchIcon />
+    </div>
+  </div>
+</div>
 
       <main className="tabela-container">
         <table>
           <thead>
             <tr>
-              <th>Nome</th>
+              <th className="icon-column"><EditIcon /></th>
+              <th>Nome Completo</th>
               <th>Cargo/Função</th>
-              <th>Restrições</th>
-              <th>Disponibilidade</th>
+              <th>Celular</th>
             </tr>
           </thead>
           <tbody>
             {filteredEmployees.length > 0 ? (
               filteredEmployees.map((emp) => (
                 <tr key={emp.id}>
+                  <td className="icon-column"></td>
                   <td>{emp.name}</td>
                   <td>{emp.function}</td>
-                  {/* ====================================================== */}
-{/* ||            FAÇA ESTA MUDANÇA AGORA             || */}
-{/* ====================================================== */}
-
-<td>
-  <div className="tag-group">
-    {/* Adicionamos 'tag tag-restricao' aqui */}
-    {renderTags(emp.constraints, 'tag tag-restricao')}
-  </div>
-</td>
-<td>
-  <div className="tag-group">
-    {/* Esta já estava correta, mas confirme */}
-    {renderTags(emp.disponibility, 'tag tag-disponibilidade')}
-  </div>
-</td>
+                  <td>{emp.cellphone || '—'}</td>
                 </tr>
               ))
             ) : (
