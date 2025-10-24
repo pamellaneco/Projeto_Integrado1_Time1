@@ -2,6 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  A BASE CORRETA:
+  Define que a página (html), o corpo (body) e o container do React (#root)
+  devem ocupar 100% do espaço disponível de seu pai, sem margens,
+  e proíbe que eles mesmos criem barras de rolagem.
+*/
+html, body, #root {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* A trava final e mais importante */
+}
+
+body {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* Adicione este código no FINAL do seu arquivo src/index.css */
+
+.lock-scroll {
+  height: 100%;
+  width: 100%;
+  overflow: hidden !important; /* Força a proibição de rolagem com prioridade máxima */
+}
 * {
   width: 100%;
   box-sizing: border-box;
