@@ -1,17 +1,30 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
-
 import './index.css'
-
 import './demos/ipc'
 import LoginPage from './pages/LoginPage'
-// If you want use Node.js, the`nodeIntegration` needs to be enabled in the Main process.
-// import './demos/node'
+
+function Root() {
+  const [route, setRoute] = React.useState(window.location.hash || '#/')
+
+  React.useEffect(() => {
+    const onHash = () => setRoute(window.location.hash || '#/')
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
+  // rotas mínimas: '#/dashboard' -> App, qualquer outra -> LoginPage
+  if (route === '#/dashboard' || route === '#dashboard') {
+    return <App />
+  }
+
+  return <LoginPage />
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <LoginPage />
+    <Root />
   </React.StrictMode>,
 )
 

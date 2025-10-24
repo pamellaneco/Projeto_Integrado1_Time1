@@ -4,6 +4,7 @@ import fs from "node:fs";
 import { readFile } from 'fs/promises';
 import Database from "better-sqlite3";
 import { migrateDB } from './migrate.js';
+import { seedDB } from './seed.js';
 
 // Standalone reseting script, should not be exported.
 const resetDB = async () => {
@@ -27,6 +28,7 @@ const resetDB = async () => {
   // Re-initialize database file.
   const db = new Database(dbPath);
   migrateDB(db);
+  seedDB(db);
 }
 
 try {
