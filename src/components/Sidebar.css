@@ -1,13 +1,17 @@
 .sidebar {
-  width: 250px;
-  background-color: #FFFFFF; /* MUDANÇA: Fundo branco */
-  color: #343a40; /* MUDANÇA: Texto escuro padrão */
+  flex: 1;
+  max-width: 250px;
+  background-color: #FFFFFF;
+  /* MUDANÇA: Fundo branco */
+  color: #343a40;
+  /* MUDANÇA: Texto escuro padrão */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 24px 0;
   box-sizing: border-box;
-  border-right: 1px solid #e9ecef; /* MUDANÇA: Adiciona linha divisória */
+  border-right: 1px solid #e9ecef;
+  /* MUDANÇA: Adiciona linha divisória */
 }
 
 /* --- Seletor de Escala --- */
@@ -18,16 +22,20 @@
 
 .scale-selector label {
   font-size: 14px;
-  color: #6c757d; /* MUDANÇA: Cinza para o label */
+  color: #6c757d;
+  /* MUDANÇA: Cinza para o label */
   display: block;
   margin-bottom: 8px;
 }
 
 .scale-selector select {
   width: 100%;
-  background-color: #FFFFFF; /* MUDANÇA: Fundo branco */
-  border: 1px solid #ced4da; /* MUDANÇA: Borda cinza */
-  color: #2A3E4B; /* MUDANÇA: Texto escuro */
+  background-color: #FFFFFF;
+  /* MUDANÇA: Fundo branco */
+  border: 1px solid #ced4da;
+  /* MUDANÇA: Borda cinza */
+  color: #2A3E4B;
+  /* MUDANÇA: Texto escuro */
   padding: 10px;
   border-radius: 6px;
   font-size: 14px;
@@ -53,28 +61,27 @@
   align-items: center;
   gap: 16px;
   padding: 16px 24px;
-  color: #343a40; /* MUDANÇA: Texto escuro */
+  color: #343a40;
+  /* MUDANÇA: Texto escuro */
   text-decoration: none;
   font-size: 16px;
   transition: background-color 0.2s;
 }
 
 .sidebar-nav li:not(.active) a:hover {
-  background-color: #f8f9fa; /* Fundo cinza claro no hover */
-}
-
-.sidebar-nav li a:hover {
-  background-color: #f8f9fa; /* Fundo cinza claro no hover */
-  color: #090f13; /* MUDANÇA: Garante que o texto fique escuro no hover */
+  background-color: #F0F0F0;
+  /* Fundo cinza claro no hover */
 }
 
 /* --- Estilo do Item Ativo (INVERTIDO) --- */
 .sidebar-nav li.active {
-  background-color: #2A3E4B; /* MUDANÇA: Fundo escuro para o item ativo */
+  background-color: #2A3E4B;
+  /* MUDANÇA: Fundo escuro para o item ativo */
 }
 
 .sidebar-nav li.active a {
-  color: #FFFFFF; /* MUDANÇA: Texto branco para o item ativo */
+  color: #FFFFFF;
+  /* MUDANÇA: Texto branco para o item ativo */
   font-weight: 600;
 }
 
@@ -88,7 +95,13 @@
   align-items: center;
   gap: 16px;
   padding: 16px 0;
-  color: #343a40; /* MUDANÇA: Texto escuro */
+  color: #343a40;
+  /* MUDANÇA: Texto escuro */
   text-decoration: none;
   font-size: 16px;
+}
+
+.sidebar-bottom a:hover {
+  color: darkred;
+  font-weight: 600;
 }

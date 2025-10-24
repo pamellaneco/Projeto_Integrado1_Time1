@@ -19,10 +19,9 @@
 }
 
 .page-content {
-  flex-grow: 1;
-  padding: 32px 40px; /* Aumenta o respiro vertical e horizontal */
+  flex: 1;
   overflow-y: auto;
-  box-sizing: border-box;
+  padding: 32px 40px; /* Aumenta o respiro vertical e horizontal */
 }
 
 /* src/components/DashboardLayout.css */
@@ -31,17 +30,8 @@
 
 /* Para telas com largura máxima de 1024px (tablets e abaixo) */
 @media (max-width: 1024px) {
-  .dashboard-body {
-    /* Faz o layout voltar a ser um bloco único em vez de lado a lado */
-    display: block;
-  }
-
   aside.sidebar {
-    /*
-      Oculta completamente a sidebar.
-      Em um app completo, você adicionaria um botão para alternar
-      a visibilidade da sidebar com display: block;
-    */
+    /* Oculta completamente a sidebar. */
     display: none;
   }
 

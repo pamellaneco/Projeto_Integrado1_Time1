@@ -29,7 +29,6 @@
    2. LAYOUT PRINCIPAL DA TELA
    ========================================================================== */
 .employees-page {
-  width: 100%;
   min-height: 100vh;
   background-color: #f4f6f8;
   padding: 16px;
@@ -308,7 +307,7 @@ td {
   */
   .tabela-container td::before {
     content: attr(data-label); /* Pega o texto do atributo data-label */
-    position: absolute;
+    margin-right: 8px;
     left: 16px;
     font-weight: 600;
     color: #333;
