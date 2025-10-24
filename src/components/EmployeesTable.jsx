@@ -127,9 +127,9 @@ function EmployeesTable() {
             {filteredEmployees.length > 0 ? (
               filteredEmployees.map((emp) => (
                 <tr key={emp.id}>
-                  <td>{emp.name}</td>
-                  <td>{emp.function}</td>
-                  <td>{emp.cellphone || '—'}</td>
+                  <td data-label="Nome Completo">{emp.name}</td>
+                  <td data-label="Cargo/Função">{emp.function}</td>
+                  <td data-label="Celular">{emp.cellphone || '—'}</td>
                 </tr>
               ))
             ) : (
