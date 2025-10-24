@@ -4,7 +4,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { getAllEmployees } from '../employeeService.js'; // Ajuste o caminho se necessário
 import './EmployeesTable.css'; // Crie este arquivo para os estilos
 import SearchIcon from './SearchIcon';
-import EditIcon from './EditIcon';
 
 // DADOS MOCKADOS
 const mockFuncionarios = [
@@ -92,9 +91,10 @@ function EmployeesTable() {
   // Abra o DevTools para ver o conteúdo de `allEmployees`
   // console será visível ao rodar `npm run dev`.
   return (
-    <div className="funcionarios-container">
+    <div className="employees-page">
+      <div className="funcionarios-container">
 
-<header className="page-header">
+        <header className="page-header">
   <h1>Funcionários</h1>
   <button className="btn btn-primary">CADASTRAR FUNCIONÁRIO</button>
 </header>
@@ -118,17 +118,15 @@ function EmployeesTable() {
         <table>
           <thead>
             <tr>
-              <th className="icon-column"><EditIcon /></th>
-              <th>Nome Completo</th>
-              <th>Cargo/Função</th>
-              <th>Celular</th>
+              <th><strong>Nome Completo</strong></th>
+              <th><strong>Cargo/Função</strong></th>
+              <th><strong>Celular</strong></th>
             </tr>
           </thead>
           <tbody>
             {filteredEmployees.length > 0 ? (
               filteredEmployees.map((emp) => (
                 <tr key={emp.id}>
-                  <td className="icon-column"></td>
                   <td>{emp.name}</td>
                   <td>{emp.function}</td>
                   <td>{emp.cellphone || '—'}</td>
@@ -149,6 +147,7 @@ function EmployeesTable() {
         <span>1-8 of {filteredEmployees.length}</span>
         {/* Adicionar ícones de navegação aqui */}
       </footer>
+      </div>
     </div>
   );
 }
