@@ -6,6 +6,7 @@ import os from 'node:os'
 import { update } from './update'
 import { db } from "../database/setup";
 import { migrateDB } from '../database/migrate'
+import { AuthService } from '../preload/services/auth'
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -86,7 +87,7 @@ async function createWindow() {
 // Creates the window of the app.
 app.whenReady().then(() => {
   migrateDB(db);
-
+  // console.log(new AuthService().login("admin@mail.com", "admin"));
   createWindow();
 });
 
