@@ -1,0 +1,61 @@
+/* src/components/TopBar.css */
+
+.topbar {
+  background-color: #2A3E4B;
+  height: 84px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  /* <-- MUDANÇA CRÍTICA: Alinha os itens nas pontas */
+  align-items: center;
+  padding: 0 24px;
+}
+
+/* ADICIONE ESTE NOVO ESTILO PARA A LOGO */
+.topbar-logo {
+  height: 28px;
+  /* Defina a altura desejada para a logo na barra */
+  width: auto;
+  /* Mantém a proporção */
+}
+
+/* O resto do arquivo (.user-info, etc.) continua igual */
+/* ... */
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  /* MUDANÇA: Fundo do avatar branco */
+  color: #2A3E4B;
+  /* MUDANÇA: Ícone do avatar escuro */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #FFFFFF;
+  /* MUDANÇA: Texto branco */
+  font-size: 14px;
+}
+
+.user-email {
+  font-size: 12px;
+  color: #adb5bd;
+  /* MUDANÇA: Cinza claro para o email */
+}

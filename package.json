@@ -29,6 +29,7 @@
     "better-sqlite3": "^12.4.1",
     "electron-updater": "^6.3.9",
     "jsonwebtoken": "^9.0.2",
+    "react-icons": "^5.5.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

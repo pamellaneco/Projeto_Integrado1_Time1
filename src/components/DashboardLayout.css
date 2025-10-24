@@ -1,0 +1,42 @@
+.dashboard-layout {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+  /* O resto continua igual */
+  display: flex;
+  flex-direction: column;
+  background-color: #f4f6f8;
+}
+
+/* O resto do arquivo permanece como está */
+.dashboard-body {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.page-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 40px; /* Aumenta o respiro vertical e horizontal */
+}
+
+/* src/components/DashboardLayout.css */
+
+/* --- REGRAS DE RESPONSIVIDADE --- */
+
+/* Para telas com largura máxima de 1024px (tablets e abaixo) */
+@media (max-width: 1024px) {
+  aside.sidebar {
+    /* Oculta completamente a sidebar. */
+    display: none;
+  }
+
+  .page-content {
+    /* Reduz o espaçamento em telas menores para economizar espaço */
+    padding: 24px;
+  }
+}

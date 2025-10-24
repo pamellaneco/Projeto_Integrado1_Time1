@@ -1,0 +1,327 @@
+/* src/components/EmployeesTable.css */
+
+/* ==========================================================================
+   1. VARIÁVEIS DE COR (Ajustadas para o protótipo Figma)
+   ========================================================================== */
+:root {
+  /* Fundo e cores primárias */
+  --cor-fundo-tela: #FFFFFF;
+  --cor-primaria-escura: #2A3E4B; /* Cor do botão principal e elementos escuros */
+
+  /* Texto */
+  --cor-texto-titulo: #000000;
+  --cor-texto-corpo: #333333;
+  --cor-texto-label: #555555;
+  --cor-texto-cabecalho-tabela: #1D2B33;
+
+  /* Bordas e separadores */
+  --cor-borda-input: #ced4da;
+  --cor-borda-tabela: #e9ecef;
+
+  /* Tags/pílulas */
+  --cor-tag-restricao-fundo: #495057;   /* Cinza escuro, como no protótipo */
+  --cor-tag-restricao-texto: #FFFFFF;
+  --cor-tag-disponibilidade-fundo: #D1E7DD; /* Verde claro, como no protótipo */
+  --cor-tag-disponibilidade-texto: #0F5132;   /* Verde escuro para contraste */
+}
+
+/* ==========================================================================
+   2. LAYOUT PRINCIPAL DA TELA
+   ========================================================================== */
+.employees-page {
+  min-height: 100vh;
+  background-color: #f4f6f8;
+  padding: 16px;
+}
+
+/* src/components/EmployeesTable.css */
+
+.funcionarios-container {
+  background-color: #ffffff;
+  padding: 32px 40px; /* Aumenta o padding interno também */
+  font-family: 'Poppins', sans-serif;
+  color: var(--cor-texto-corpo);
+  border-radius: 8px; /* Adiciona bordas arredondadas */
+  border: 1px solid #e9ecef; /* Adiciona uma borda sutil */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Sombra muito leve */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   3. HEADER (TÍTULO E BOTÃO DE CADASTRO)
+   ========================================================================== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px; /* Aumentado de 24px para 40px */
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 32px; /* Pode ajustar o tamanho se desejar */
+  font-weight: 700; /* Deixa a fonte mais forte */
+  color: #1D2B33;
+}
+
+/* O container dos botões fica à direita */
+.acoes {
+  display: flex;
+  gap: 16px;
+}
+
+/* ==========================================================================
+   4. ELEMENTOS DE FORMULÁRIO (INPUTS E BOTÕES)
+   ========================================================================== */
+
+/* Container de pesquisa */
+.search-container {
+  margin-bottom: 40px;
+  box-sizing: border-box;
+}
+
+.search-container label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--cor-texto-label);
+  font-size: 14px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* src/components/EmployeesTable.css */
+
+.search-input {
+  height: 40px;
+  border: 1px solid #E9ECEF; /* Borda completa */
+  border-radius: 8px; /* Bordas arredondadas */
+  padding: 0 40px 0 16px; /* Padding ajustado */
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #FFFFFF;
+}
+
+/* Adicione este novo seletor para quando o input estiver focado */
+.search-input:focus {
+  outline: none; /* Remove a borda azul padrão do navegador ao clicar */
+  border-bottom-color: #2A3E4B; /* Muda a cor da borda ao focar */
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* para que o ícone não interfira com o clique no input */
+  display: flex;
+  align-items: center;
+  color: var(--cor-texto-label);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cor-texto-label);
+  display: flex;
+  align-items: center;
+}
+
+.search-input::placeholder {
+  color: #1D2B33;
+}
+
+/* --- ESTILOS DOS BOTÕES --- */
+.btn {
+  height: 40px;
+  padding: 0 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500; /* Um pouco mais leve */
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--cor-primaria-escura);
+  color: white;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  /* Botão de contorno */
+  background-color: transparent;
+  color: var(--cor-primaria-escura);
+  border-color: var(--cor-primaria-escura);
+}
+
+.btn-secondary:hover {
+  background-color: var(--cor-primaria-escura);
+  color: white;
+}
+
+
+/* ==========================================================================
+   5. TABELA (Estilo limpo, sem bordas verticais)
+   ========================================================================== */
+
+/* src/components/EmployeesTable.css */
+
+.tabela-container {
+  width: 100%;
+  border: none; /* Remove a borda */
+  border-radius: 0; /* Remove o arredondamento */
+  overflow: visible; /* Muda de hidden para visible */
+  background-color: white;
+  box-shadow: none;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0; /* Remove margens padrão */
+}
+
+th, td {
+  padding: 20px 24px;
+  border-bottom: 1px solid #1D2B33;
+  text-align: left !important; /* Forçar alinhamento à esquerda */
+  vertical-align: middle;
+  border-bottom: none; /* Remove a borda daqui */
+}
+
+/* Garante que todas as células da tabela estejam alinhadas à esquerda */
+.tabela-container table th,
+.tabela-container table td {
+  text-align: left !important;
+}
+
+tbody tr {
+  border-bottom: 1px solid #e9ecef;
+}
+
+/* Remove a borda da última linha para um acabamento melhor */
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+th {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--cor-texto-cabecalho-tabela);
+  background-color: white;
+  white-space: nowrap; /* Evita quebra de linha nos títulos */
+  border-bottom: 1px solid #1D2B33;
+}
+
+td {
+  font-size: 14px;
+  color: var(--cor-texto-corpo);
+}
+
+
+/* ==========================================================================
+   6. TAGS (As pílulas coloridas)
+   ========================================================================== */
+
+.tag-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  padding: 6px 14px;
+  border-radius: 16px; /* Formato de pílula */
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block; /* Garante que o padding seja aplicado corretamente */
+}
+
+.tag-restricao {
+  background-color: var(--cor-tag-restricao-fundo);
+  color: var(--cor-tag-restricao-texto);
+}
+
+.tag-disponibilidade {
+  background-color: var(--cor-tag-disponibilidade-fundo);
+  color: var(--cor-tag-disponibilidade-texto);
+}
+
+/* ==========================================================================
+   7. FOOTER (PAGINAÇÃO)
+   ========================================================================== */
+
+.funcionarios-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 24px;
+  padding-top: 24px;
+  font-size: 14px;
+  color: #1D2B33;
+}
+
+/* src/components/EmployeesTable.css */
+
+/* --- REGRAS DE RESPONSIVIDADE PARA A TABELA --- */
+
+/* Para telas com largura máxima de 768px (celulares) */
+@media (max-width: 768px) {
+
+  /* 1. Oculta os cabeçalhos originais da tabela */
+  .tabela-container thead {
+    display: none;
+  }
+
+  /* 2. Faz cada linha (tr) se comportar como um card */
+  .tabela-container tr {
+    display: block;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* 3. Faz cada célula (td) ocupar uma linha inteira dentro do card */
+  .tabela-container td {
+    display: block;
+    padding: 12px 16px; /* Ajusta o padding para o formato de card */
+    text-align: right !important; /* Alinha o valor à direita */
+    position: relative;
+    border-bottom: 1px solid #f0f0f0; /* Linha separadora entre os dados */
+  }
+
+  .tabela-container td:last-child {
+    border-bottom: none; /* Remove a linha da última célula */
+  }
+
+  /* 4. A MÁGICA: Pega o texto do atributo 'data-label' que adicionamos no JSX
+     e o exibe antes do conteúdo da célula, criando o par "Rótulo: Valor".
+  */
+  .tabela-container td::before {
+    content: attr(data-label); /* Pega o texto do atributo data-label */
+    margin-right: 8px;
+    left: 16px;
+    font-weight: 600;
+    color: #333;
+    text-align: left;
+  }
+
+  /* Ajustes no espaçamento do container principal em telas muito pequenas */
+  .funcionarios-container {
+    padding: 24px 16px;
+  }
+
+  .page-header {
+    flex-direction: column; /* Empilha o título e o botão */
+    align-items: flex-start;
+    gap: 16px;
+  }
+}

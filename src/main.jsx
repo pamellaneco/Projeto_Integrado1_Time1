@@ -1,6 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
+import EmployeesTable from './components/EmployeesTable'
+import DashboardLayout from './components/DashboardLayout';
+
+
 import './index.css'
 import './demos/ipc'
 import LoginPage from './pages/LoginPage'
@@ -24,8 +28,12 @@ function Root() {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <Root />
+    <DashboardLayout>
+      <EmployeesTable />
+    </DashboardLayout>
   </React.StrictMode>,
 )
 
 postMessage({ payload: 'removeLoading' }, '*')
+
+// src/App.jsx (ou seu arquivo principal)
