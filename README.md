@@ -94,4 +94,4 @@ Projeto desenvolvido pelo Time 1 da disciplina de Projeto Integrado.
 | **Gabriela Coutinho**| [gbrlcoutinho](https://github.com/gbrlcoutinho) | [in/gbrlcoutinho](https://www.linkedin.com/in/gbrlcoutinho) |
 | **Luiz Henrique Sena** | [HenriqueSenaDev](https://github.com/HenriqueSenaDev) | [in/luiz-henrique-nunes-sena](https://www.linkedin.com/in/luiz-henrique-nunes-sena-002a4829b) |
 | **Pâmella Kyrla Neco** | [pamellaneco](https://github.com/pamellaneco) | [in/pamellakyrla](https://www.linkedin.com/in/pamellakyrla) |
-| **Paulo Sérgio Oliveira** | [Paulo-Sergio-Oliveira](https://github.com/Paulo-Sergio-Oliveira) | [in/paulo-sergio-vieira-oliveira](https://www.linkedin.com/in/paulo-sergio-vieira-oliveira-695200281/) |
+| **Paulo Sergio Oliveira** | [Paulo-Sergio-Oliveira](https://github.com/Paulo-Sergio-Oliveira) | [in/paulo-sergio-vieira-oliveira](https://www.linkedin.com/in/paulo-sergio-vieira-oliveira-695200281/) |
