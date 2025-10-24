@@ -1,0 +1,94 @@
+.sidebar {
+  width: 250px;
+  background-color: #FFFFFF; /* MUDANÇA: Fundo branco */
+  color: #343a40; /* MUDANÇA: Texto escuro padrão */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 0;
+  box-sizing: border-box;
+  border-right: 1px solid #e9ecef; /* MUDANÇA: Adiciona linha divisória */
+}
+
+/* --- Seletor de Escala --- */
+.scale-selector {
+  padding: 0 24px;
+  margin-bottom: 30px;
+}
+
+.scale-selector label {
+  font-size: 14px;
+  color: #6c757d; /* MUDANÇA: Cinza para o label */
+  display: block;
+  margin-bottom: 8px;
+}
+
+.scale-selector select {
+  width: 100%;
+  background-color: #FFFFFF; /* MUDANÇA: Fundo branco */
+  border: 1px solid #ced4da; /* MUDANÇA: Borda cinza */
+  color: #2A3E4B; /* MUDANÇA: Texto escuro */
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* MUDANÇA: Seta do dropdown agora é escura */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23343a40' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 1em;
+}
+
+/* --- Navegação Principal --- */
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav li a {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  color: #343a40; /* MUDANÇA: Texto escuro */
+  text-decoration: none;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.sidebar-nav li:not(.active) a:hover {
+  background-color: #f8f9fa; /* Fundo cinza claro no hover */
+}
+
+.sidebar-nav li a:hover {
+  background-color: #f8f9fa; /* Fundo cinza claro no hover */
+  color: #090f13; /* MUDANÇA: Garante que o texto fique escuro no hover */
+}
+
+/* --- Estilo do Item Ativo (INVERTIDO) --- */
+.sidebar-nav li.active {
+  background-color: #2A3E4B; /* MUDANÇA: Fundo escuro para o item ativo */
+}
+
+.sidebar-nav li.active a {
+  color: #FFFFFF; /* MUDANÇA: Texto branco para o item ativo */
+  font-weight: 600;
+}
+
+/* --- Link de Sair --- */
+.sidebar-bottom {
+  padding: 0 24px;
+}
+
+.sidebar-bottom a {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  color: #343a40; /* MUDANÇA: Texto escuro */
+  text-decoration: none;
+  font-size: 16px;
+}
