@@ -12,7 +12,7 @@
   --cor-texto-titulo: #000000;
   --cor-texto-corpo: #333333;
   --cor-texto-label: #555555;
-  --cor-texto-cabecalho-tabela: #6c757d;
+  --cor-texto-cabecalho-tabela: #1D2B33;
 
   /* Bordas e separadores */
   --cor-borda-input: #ced4da;
@@ -28,11 +28,21 @@
 /* ==========================================================================
    2. LAYOUT PRINCIPAL DA TELA
    ========================================================================== */
+.employees-page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f4f6f8;
+  padding: 16px;
+}
+
 .funcionarios-container {
-  background-color: var(--cor-fundo-tela);
-  padding: 48px 48px; /* Aumentado padding vertical e horizontal */
+  background-color: #ffffff;
+  padding: 32px 24px;
   font-family: 'Poppins', sans-serif;
   color: var(--cor-texto-corpo);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  max-width: none;
 }
 
 /* ==========================================================================
@@ -50,7 +60,7 @@
   font-size: 36px;
   font-weight: 600;
   color: #1D2B33;
-  flex-grow: 1; /* Ocupa o espaço disponível à esquerda */
+  flex: 0 0 auto; /* Não cresce, não encolhe, tamanho automático */
 }
 
 /* O container dos botões fica à direita */
@@ -65,8 +75,9 @@
 
 /* Container de pesquisa */
 .search-container {
-  width: 100%;
-  margin-bottom: 40px; /* Aumentado de 24px para 40px */
+  margin-bottom: 32px;
+  padding: 0 24px;
+  box-sizing: border-box;
 }
 
 .search-container label {
@@ -78,16 +89,18 @@
 
 .search-input-wrapper {
   position: relative;
+  box-sizing: border-box;
   width: 100%;
 }
 
 .search-input {
   height: 40px;
-  border: 1px solid var(--cor-borda-input);
-  border-radius: 6px;
-  padding: 0 40px 0 16px; /* Aumenta o padding da direita para o ícone */
+  border: 1px solid #E9ECEF;
+  border-radius: 8px;
+  padding: 0 40px 0 16px;
   font-size: 14px;
   width: 100%;
+  box-sizing: border-box;
   background-color: #FFFFFF;
 }
 
@@ -108,7 +121,7 @@
 }
 
 .search-input::placeholder {
-  color: #999;
+  color: #1D2B33;
 }
 
 /* --- ESTILOS DOS BOTÕES --- */
@@ -151,11 +164,11 @@
 
 .tabela-container {
   width: 100%;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #E9ECEF;
   border-radius: 8px;
   overflow: hidden; /* Garante que o border-radius seja aplicado */
   background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: none;
 }
 
 table {
@@ -165,8 +178,8 @@ table {
 }
 
 th, td {
-  padding: 24px 32px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 24px;
+  border-bottom: 1px solid #1D2B33;
   text-align: left !important; /* Forçar alinhamento à esquerda */
   vertical-align: middle;
 }
@@ -186,9 +199,9 @@ th {
   font-size: 14px;
   font-weight: 500;
   color: var(--cor-texto-cabecalho-tabela);
-  background-color: #fafafa;
+  background-color: white;
   white-space: nowrap; /* Evita quebra de linha nos títulos */
-  border-bottom: 1px solid #e0e0e0; /* Linha do cabeçalho um pouco mais escura para diferenciação */
+  border-bottom: 1px solid #1D2B33;
 }
 
 td {
@@ -236,5 +249,5 @@ td {
   gap: 24px;
   padding-top: 24px;
   font-size: 14px;
-  color: #6C757D;
+  color: #1D2B33;
 }
