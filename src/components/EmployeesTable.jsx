@@ -15,7 +15,7 @@ const mockFuncionarios = [
 
 function EmployeesTable() {
   // --- ESTADOS ---
-  const [allEmployees, setAllEmployees] = useState(mockFuncionarios);
+  const [allEmployees, setAllEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 

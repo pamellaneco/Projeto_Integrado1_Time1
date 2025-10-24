@@ -48,6 +48,27 @@ export const seedDB = (db) => {
       cellphone: "(88) 5678-9012"
     });
 
+    stmtEmployee.run({
+      id: v4(),
+      name: "Edivar Cruz",
+      function: "Operador da ETA",
+      cellphone: "(88) 6789-0123"
+    });
+
+    stmtEmployee.run({
+      id: v4(),
+      name: "Abigail Marques",
+      function: "Encanador",
+      cellphone: "(88) 7890-1234"
+    });
+
+    stmtEmployee.run({
+      id: v4(),
+      name: "Tenebrio Otavio",
+      function: "Operador da ETA",
+      cellphone: "(88) 8901-2345"
+    });
+
     console.log("Database seed successfully completed.");
   } catch (error) {
     console.error(`Error on seeding database: ${JSON.stringify(error)}`);
