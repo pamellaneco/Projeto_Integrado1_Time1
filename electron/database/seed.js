@@ -11,46 +11,41 @@ export const seedDB = (db) => {
       password: "$2b$10$puBkQd1odfODaeA5nqD.e.khdJercpOiji2/i.CX6D9NQKVlAx9u."
     });
 
-    const stmtEmployee = db.prepare("INSERT INTO employees (id, name, function, constraints, disponibility) VALUES (@id, @name, @function, @constraints, @disponibility);");
+    const stmtEmployee = db.prepare("INSERT INTO employees (id, name, function, cellphone) VALUES (@id, @name, @function, @cellphone);");
 
     stmtEmployee.run({
       id: v4(),
       name: "João Silva",
       function: "Encanador",
-      constraints: "Final de Semana, Feriados",
-      disponibility: "Plantão da Tarde"
+      cellphone: "(88) 1234-5678"
     });
 
     stmtEmployee.run({
       id: v4(),
       name: "Mário Oliveira",
       function: "Operador da ETA",
-      constraints: "Final de Semana, Plantão da ETA",
-      disponibility: "Plantão da Tarde, Feriados"
+      cellphone: "(88) 2345-6789"
     });
 
     stmtEmployee.run({
       id: v4(),
       name: "Carlos Pereira",
       function: "Encanador",
-      constraints: "Final de Semana, Feriados",
-      disponibility: "Plantão da Manhã"
+      cellphone: "(88) 3456-7890"
     });
 
     stmtEmployee.run({
       id: v4(),
       name: "Francisco Henrique",
       function: "Encanador",
-      constraints: "",
-      disponibility: "Plantão da Manhã"
+      cellphone: "(88) 4567-8901"
     });
 
     stmtEmployee.run({
       id: v4(),
       name: "Tobias Alves",
       function: "Operador da ETA",
-      constraints: "Final de Semana, Plantão da ETA",
-      disponibility: ""
+      cellphone: "(88) 5678-9012"
     });
 
     console.log("Database seed successfully completed.");
