@@ -19,26 +19,38 @@ A criação e gerenciamento manual de **duas escalas de plantão mensais distint
 
 Nosso produto automatiza a criação e gestão, aplicando restrições que previnem o choque de alocação. O **principal diferencial** é a capacidade de **exportar o relatório final em PDF pronto para impressão**, já seguindo o padrão e identidade visual (logo) do SAAE.
 
-## 🚀 Funcionalidades Chave
+<img width="1351" height="652" alt="image" src="https://github.com/user-attachments/assets/c3807b1f-dd55-4e1f-8e0d-89a4acf6b723" />
 
-O software foi desenvolvido para atender às necessidades de agilidade e eficiência dos gestores e coordenadores e dos funcionários operacionais.
+## 🚀 Funcionalidades Implementadas (Sprint 2)
 
-- **Automação de Escalas:** Criação automatizada de duas escalas mensais de plantão distintas.
-- **Gestão de Restrições:** Implementação de regras para prevenir o choque de alocação de funcionários (especialmente aqueles alocados em ambas as equipes).
-- **Controle de Cobertura:** Garantia de que a cobertura mínima do horário de plantão (13h às 19h) seja mantida.
-- **Gestão de Alterações/Trocas:** Permite o controle flexível e dinâmico de alterações e trocas nas escalas.
-- **Exportação de Relatórios:** Geração do documento final da escala em **PDF** com o logo e identidade visual do SAAE, pronto para impressão.
+Com base no progresso da equipe, as seguintes funcionalidades foram desenvolvidas ou estão em andamento:
+
+* **Autenticação:**
+    * Implementação completa do back-end da tela de login.
+    * Desenvolvimento e integração do front-end da tela de login.
+* **Gerenciamento de Funcionários:**
+    * Implementação do back-end para a listagem de funcionários.
+    * Desenvolvimento do front-end da tela de listagem, incluindo componentização em React e estilização CSS.
+    * Lógica de busca e filtro de funcionários implementada no front-end.
+* **Infraestrutura e Banco de Dados:**
+    * Configuração de um banco de dados SQLite acoplado para simplificar a integração.
+    * Configuração de migrações de banco de dados para garantir um ambiente homogêneo para os desenvolvedores.
+* **Design e Modelagem (Em Andamento):**
+    * Prototipação das telas de CRUD de funcionários.
+    * Modelagem do banco de dados (Diagrama ER) e Diagrama de Classes, com alinhamento sobre as regras de restrição.
 
 ## 🛠️ Tecnologias Utilizadas
 
-Esta seção deverá ser preenchida com as tecnologias que você utilizou no desenvolvimento do software desktop (por exemplo: Java, C\#, Python, Electron, etc.).
+O projeto foi construído utilizando o ecossistema JavaScript moderno, com foco em uma aplicação desktop multiplataforma.
 
-- **Linguagem Principal:** `Javascript`
-- **Framework/Toolkit de Interface:** `React, Electron`
-- **Geração de PDF:** ` `
-- **Banco de Dados:** `SQL Lite`
+- **Framework Desktop:** `Electron`
+- **Interface Gráfica (UI):** `React`
+- **Build Tool:** `Vite`
+- **Linguagem Principal:** `JavaScript`
+- [cite_start]**Banco de Dados:** `SQLite` [cite: 22]
+- **Estilização:** `CSS Puro`
+- **Geração de PDF:** `(A ser definido)`
 
----
 
 ## ⚙️ Como Executar o Projeto (Instalação)
 
@@ -74,8 +86,12 @@ Para rodar o projeto, você precisará ter instalado:
 
 ## ✒️ Autores
 
-- **Ana Julia Chaves** <br> (https://github.com/liapsps / https://www.linkedin.com/in/juliaentrechaves)
-- **Gabriela Coutinho** <br> (https://github.com/gbrlcoutinho / https://www.linkedin.com/in/gbrlcoutinho)
-- **Luiz Henrique Sena** <br> (https://github.com/HenriqueSenaDev / https://www.linkedin.com/in/luiz-henrique-nunes-sena-002a4829b)
-- **Pâmella Kyrla Neco** <br> (https://github.com/pamellaneco / https://www.linkedin.com/in/pamellakyrla)
-- **Paulo Sérgio Oliveira** <br> (https://github.com/Paulo-Sergio-Oliveira / https://www.linkedin.com/in/paulo-sergio-vieira-oliveira-695200281/)
+Projeto desenvolvido pelo Time 1 da disciplina de Projeto Integrado.
+
+| Nome | GitHub | LinkedIn |
+| :--- | :--- | :--- |
+| **Ana Julia Chaves** | [liapsps](https://github.com/liapsps) | [in/juliaentrechaves](https://www.linkedin.com/in/juliaentrechaves) |
+| **Gabriela Coutinho**| [gbrlcoutinho](https://github.com/gbrlcoutinho) | [in/gbrlcoutinho](https://www.linkedin.com/in/gbrlcoutinho) |
+| **Luiz Henrique Sena** | [HenriqueSenaDev](https://github.com/HenriqueSenaDev) | [in/luiz-henrique-nunes-sena](https://www.linkedin.com/in/luiz-henrique-nunes-sena-002a4829b) |
+| **Pâmella Kyrla Neco** | [pamellaneco](https://github.com/pamellaneco) | [in/pamellakyrla](https://www.linkedin.com/in/pamellakyrla) |
+| **Paulo Sérgio Oliveira** | [Paulo-Sergio-Oliveira](https://github.com/Paulo-Sergio-Oliveira) | [in/paulo-sergio-vieira-oliveira](https://www.linkedin.com/in/paulo-sergio-vieira-oliveira-695200281/) |
