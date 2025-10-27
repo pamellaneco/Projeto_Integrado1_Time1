@@ -22,10 +22,10 @@
     "db:reset": "electron electron/database/reset.js"
   },
   "dependencies": {
-    "bcryptjs": "^3.0.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/material": "^7.3.4",
+    "bcryptjs": "^3.0.2",
     "better-sqlite3": "^12.4.1",
     "electron-updater": "^6.3.9",
     "jsonwebtoken": "^9.0.2",
@@ -33,6 +33,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",

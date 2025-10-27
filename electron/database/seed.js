@@ -1,4 +1,12 @@
 import { v4 } from "uuid";
+import { faker } from "@faker-js/faker"
+
+const generateFakeEmployee = () => ({
+  id: v4(),
+  name: faker.person.fullName(),
+  function: faker.helpers.arrayElement(["Encanador", "Operador da ETA"]),
+  cellphone: faker.phone.number()
+});
 
 export const seedDB = (db) => {
   try {
@@ -13,63 +21,18 @@ export const seedDB = (db) => {
 
     const stmtEmployee = db.prepare("INSERT INTO employees (id, name, function, cellphone) VALUES (@id, @name, @function, @cellphone);");
 
-    stmtEmployee.run({
-      id: v4(),
-      name: "João Silva",
-      function: "Encanador",
-      cellphone: "(88) 1234-5678"
+    const employeesCount = 100;
+    const employees = Array.from({ length: employeesCount}, generateFakeEmployee);
+
+    const insertMany = db.transaction((emps) => {
+      for (const emp of emps) {
+        stmtEmployee.run(emp);
+      }
     });
 
-    stmtEmployee.run({
-      id: v4(),
-      name: "Mário Oliveira",
-      function: "Operador da ETA",
-      cellphone: "(88) 2345-6789"
-    });
+    insertMany(employees);
 
-    stmtEmployee.run({
-      id: v4(),
-      name: "Carlos Pereira",
-      function: "Encanador",
-      cellphone: "(88) 3456-7890"
-    });
-
-    stmtEmployee.run({
-      id: v4(),
-      name: "Francisco Henrique",
-      function: "Encanador",
-      cellphone: "(88) 4567-8901"
-    });
-
-    stmtEmployee.run({
-      id: v4(),
-      name: "Tobias Alves",
-      function: "Operador da ETA",
-      cellphone: "(88) 5678-9012"
-    });
-
-    stmtEmployee.run({
-      id: v4(),
-      name: "Edivar Cruz",
-      function: "Operador da ETA",
-      cellphone: "(88) 6789-0123"
-    });
-
-    stmtEmployee.run({
-      id: v4(),
-      name: "Abigail Marques",
-      function: "Encanador",
-      cellphone: "(88) 7890-1234"
-    });
-
-    stmtEmployee.run({
-      id: v4(),
-      name: "Tenebrio Otavio",
-      function: "Operador da ETA",
-      cellphone: "(88) 8901-2345"
-    });
-
-    console.log("Database seed successfully completed.");
+    console.log(`Database seeded with ${employeesCount} employees and Admin user.`);
   } catch (error) {
     console.error(`Error on seeding database: ${JSON.stringify(error)}`);
   }
