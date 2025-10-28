@@ -8,17 +8,16 @@ export const getEmployeesPaginated = (page = 1, limit = 10) => {
 
         const employees = db.prepare(`
             SELECT * FROM employees
-            FROM employees
             LIMIT ?
             OFFSET ?
         `).all(limit, offset);
 
         return {
             employees: employees,
-            total: total
+            totalCount: total
         };
     } catch (error) {
         console.error("Erro ao buscar funcionários paginados:", error);
-        return {employees: [], total: 0};
+        return {employees: [], totalCount: 0};
     }
 }
