@@ -1,16 +1,30 @@
 import { db } from "../database/setup.js";
 
-export const getEmployeesPaginated = (page = 1, limit = 10) => {
+export const getEmployeesPaginated = (page = 1, limit = 10, searchTerm = "") => {
     try {
         const offset = (page - 1) * limit;
 
-        const { total } = db.prepare("SELECT COUNT(*) as total FROM employees").get();
+        let whereClause = "";
+        let searchParams = [];
+
+        if (searchTerm && searchTerm.trim() !== "") {
+            const pattern = `${searchTerm.trim()}%`;
+            whereClause = `WHERE name LIKE ? OR function LIKE ?`;
+            searchParams.push(pattern, pattern);
+        }
+
+        const { total } = db.prepare(
+            `SELECT COUNT(*) as total 
+            FROM employees
+            ${whereClause}
+        `).get(...searchParams);
 
         const employees = db.prepare(`
             SELECT * FROM employees
+            ${whereClause}
             LIMIT ?
             OFFSET ?
-        `).all(limit, offset);
+        `).all(...searchParams,limit, offset);
 
         return {
             employees: employees,
