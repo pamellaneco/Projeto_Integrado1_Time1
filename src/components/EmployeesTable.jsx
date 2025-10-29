@@ -1,6 +1,6 @@
 // src/components/EmployeesTable.jsx
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getAllEmployees } from '../employeeService.js'; // Ajuste o caminho se necessário
 import './EmployeesTable.css'; // Crie este arquivo para os estilos
 import SearchIcon from './SearchIcon';
@@ -23,7 +23,10 @@ function EmployeesTable() {
   const [error, setError] = useState(null);
 
   // Novos estados para a funcionalidade da UI
-  const [searchTerm, setSearchTerm] = useState(''); 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchText, setSearchText] = useState('');
+  const searchInputRef = useRef(null);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
@@ -31,16 +34,22 @@ function EmployeesTable() {
   const firstRowIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const lastRowIndex = Math.min(currentPage * ITEMS_PER_PAGE, totalCount);
 
+  const handleSearchChange = (e) => {
+    setSearchText(e.target.value);
+  }
   // --- BUSCA DE DADOS (useEffect do código original, levemente adaptado) ---
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
+        if (loading) return; // Se já estiver carregando, não faz nada
+
         setLoading(true);
         setError(null);
 
         const response = await getAllEmployees({
           page: currentPage,
-          limit: ITEMS_PER_PAGE
+          limit: ITEMS_PER_PAGE,
+          searchTerm: searchTerm
         });
 
         setAllEmployees(response.employees);
@@ -56,7 +65,29 @@ function EmployeesTable() {
     };
 
     fetchEmployees();
-  }, [currentPage]);
+  }, [currentPage, searchTerm]);
+
+  useEffect(() => {
+    if (searchText === searchTerm) return;
+
+    const delaySearch = setTimeout(() => {
+      setSearchTerm(searchText);
+    }, 300);
+
+    return () => clearTimeout(delaySearch);
+  }, [searchText, searchTerm]);
+
+  useEffect(() => {
+    if (searchTerm && currentPage !== 1) {
+      setCurrentPage(1); 
+    }
+  }, [searchTerm, currentPage]);
+
+  useEffect(() => {
+    if (!loading && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [loading]);
 
   const goToNextPage = () => {
     if (currentPage < totalPages) {
@@ -69,19 +100,7 @@ function EmployeesTable() {
       setCurrentPage(currentPage - 1);
     }
   };
-
-  // --- LÓGICA DE FILTRO (FRONT-END) ---
-  const filteredEmployees = useMemo(() => {
-    return allEmployees.filter(employee => {
-      const lowerCaseSearch = searchTerm.toLowerCase();
-      // Verifica se o termo de busca aparece no nome OU na função do funcionário
-      return (
-        employee.name.toLowerCase().includes(lowerCaseSearch) ||
-        employee.function.toLowerCase().includes(lowerCaseSearch)
-      );
-    });
-  }, [allEmployees, searchTerm]);
-
+  
   // --- FUNÇÃO PARA RENDERIZAR TAGS ---
   const renderTags = (tagsString, className = 'tag') => {
     if (!tagsString || tagsString.trim() === '') {
@@ -117,11 +136,12 @@ function EmployeesTable() {
 <div className="search-container">
   <div className="search-input-wrapper">
     <input 
-      type="text" 
+      type="text"
+      ref={searchInputRef}
       placeholder="Nome, cargo/função" 
       className="search-input"
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
+      value={searchText}
+      onChange={handleSearchChange}
     />
     <div className="search-icon">
       <SearchIcon />
@@ -139,8 +159,8 @@ function EmployeesTable() {
             </tr>
           </thead>
           <tbody>
-            {filteredEmployees.length > 0 ? (
-              filteredEmployees.map((emp) => (
+            {allEmployees.length > 0 ? (
+              allEmployees.map((emp) => (
                 <tr key={emp.id}>
                   <td data-label="Nome Completo">{emp.name}</td>
                   <td data-label="Cargo/Função">{emp.function}</td>

@@ -141,6 +141,6 @@ ipcMain.handle('open-win', (_, arg) => {
   }
 })
 
-ipcMain.handle('get-all-employees', async (_, { page, limit }) => {
-  return getEmployeesPaginated(page, limit);
+ipcMain.handle('get-all-employees', async (_, { page, limit, searchTerm }) => {
+  return getEmployeesPaginated(page, limit, searchTerm);
 })

@@ -8,8 +8,8 @@ export const getEmployeesPaginated = (page = 1, limit = 10, searchTerm = "") => 
         let searchParams = [];
 
         if (searchTerm && searchTerm.trim() !== "") {
-            const pattern = `${searchTerm.trim()}%`;
-            whereClause = `WHERE name LIKE ? OR function LIKE ?`;
+            const pattern = `%${searchTerm.toLocaleLowerCase().trim()}%`;
+            whereClause = `WHERE lower(name) LIKE ? OR lower(function) LIKE ?`;
             searchParams.push(pattern, pattern);
         }
 
@@ -20,11 +20,11 @@ export const getEmployeesPaginated = (page = 1, limit = 10, searchTerm = "") => 
         `).get(...searchParams);
 
         const employees = db.prepare(`
-            SELECT * FROM employees
+            SELECT id, name, function, cellphone FROM employees
             ${whereClause}
             LIMIT ?
             OFFSET ?
-        `).all(...searchParams,limit, offset);
+        `).all(...searchParams, limit, offset);
 
         return {
             employees: employees,
