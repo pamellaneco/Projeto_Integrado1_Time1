@@ -22,6 +22,7 @@ export const getEmployeesPaginated = (page = 1, limit = 10, searchTerm = "") => 
         const employees = db.prepare(`
             SELECT id, name, function, cellphone FROM employees
             ${whereClause}
+            ORDER BY name
             LIMIT ?
             OFFSET ?
         `).all(...searchParams, limit, offset);

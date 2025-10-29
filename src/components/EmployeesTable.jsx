@@ -188,12 +188,14 @@ function EmployeesTable() {
         {/* Adicionar ícones de navegação aqui */}
         <div className="pagination-controls">
           <button
+            className='btn btn-primary'
             onClick={goToPreviousPage}
             disabled={currentPage === 1}
           >
             &lt; Anterior
           </button>
           <button
+            className='btn btn-primary'
             onClick={goToNextPage}
             disabled={currentPage >= totalPages || totalPages === 0 || loading}
           >
