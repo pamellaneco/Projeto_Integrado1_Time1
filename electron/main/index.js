@@ -43,6 +43,16 @@ if (!app.requestSingleInstanceLock()) {
   process.exit(0)
 }
 
+ipcMain.handle('auth-login', async (_event, email, password) => {
+  try {
+    const auth = new AuthService()
+    const token = auth.login(email, password) // lança se inválido
+    return { ok: true, token }
+  } catch (err) {
+    return { ok: false, error: err?.message ?? String(err) }
+  }
+})
+
 let win = null
 const preload = path.join(__dirname, '../preload/index.mjs')
 const indexHtml = path.join(RENDERER_DIST, 'index.html')

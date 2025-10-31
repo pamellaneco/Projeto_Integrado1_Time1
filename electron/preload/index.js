@@ -38,6 +38,12 @@ function domReady(condition = ['complete', 'interactive']) {
   })
 }
 
+contextBridge.exposeInMainWorld('auth', {
+  login(email, password) {
+    return ipcRenderer.invoke('auth-login', email, password)
+  },
+})
+
 const safeDOM = {
   append(parent, child) {
     if (!Array.from(parent.children).find(e => e === child)) {
