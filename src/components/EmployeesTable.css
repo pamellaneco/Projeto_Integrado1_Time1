@@ -344,7 +344,14 @@ td {
 
   /* Ajustes no espaçamento do container principal em telas muito pequenas */
   .funcionarios-container {
-    padding: 24px 16px;
+    background-color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+    color: var(--cor-texto-corpo);
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
   }
 
   .page-header {

@@ -2,16 +2,13 @@
   width: 250px;
   background-color: #FFFFFF;
   color: #343a40;
-  flex: 1;
   max-width: 250px;
-  background-color: #FFFFFF;
-  color: #343a40;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   justify-content: space-between;
   padding: 24px 0;
   box-sizing: border-box;
-  border-right: 1px solid #e9ecef;
   border-right: 1px solid #e9ecef;
 }
 
@@ -80,10 +77,6 @@
 .sidebar-nav li.active a {
   color: #FFFFFF;
   background-color: #2A3E4B;
-}
-
-.sidebar-nav li.active a {
-  color: #FFFFFF;
   font-weight: 600;
 }
 

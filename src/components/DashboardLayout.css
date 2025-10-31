@@ -40,6 +40,9 @@
 
   .page-content {
     flex-grow: 1;
+    padding: 32px 40px;
+    background-color: #ffffff;
+    min-height: calc(100vh - 84px);
     overflow-y: auto;
     box-sizing: border-box;
   }
