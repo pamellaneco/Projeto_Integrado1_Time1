@@ -1,27 +1,18 @@
 .sidebar {
-<<<<<<< HEAD
   width: 250px;
-  background-color: #FFFFFF; /* MUDANÇA: Fundo branco */
-  color: #343a40; /* MUDANÇA: Texto escuro padrão */
-=======
+  background-color: #FFFFFF;
+  color: #343a40;
   flex: 1;
   max-width: 250px;
   background-color: #FFFFFF;
-  /* MUDANÇA: Fundo branco */
   color: #343a40;
-  /* MUDANÇA: Texto escuro padrão */
->>>>>>> 0b59b6a119264495ea5c7dac36d7020087c528be
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 24px 0;
   box-sizing: border-box;
-<<<<<<< HEAD
-  border-right: 1px solid #e9ecef; /* MUDANÇA: Adiciona linha divisória */
-=======
   border-right: 1px solid #e9ecef;
-  /* MUDANÇA: Adiciona linha divisória */
->>>>>>> 0b59b6a119264495ea5c7dac36d7020087c528be
+  border-right: 1px solid #e9ecef;
 }
 
 /* --- Seletor de Escala --- */
@@ -32,37 +23,22 @@
 
 .scale-selector label {
   font-size: 14px;
-<<<<<<< HEAD
-  color: #6c757d; /* MUDANÇA: Cinza para o label */
-=======
   color: #6c757d;
-  /* MUDANÇA: Cinza para o label */
->>>>>>> 0b59b6a119264495ea5c7dac36d7020087c528be
   display: block;
   margin-bottom: 8px;
 }
 
 .scale-selector select {
   width: 100%;
-<<<<<<< HEAD
-  background-color: #FFFFFF; /* MUDANÇA: Fundo branco */
-  border: 1px solid #ced4da; /* MUDANÇA: Borda cinza */
-  color: #2A3E4B; /* MUDANÇA: Texto escuro */
-=======
   background-color: #FFFFFF;
-  /* MUDANÇA: Fundo branco */
   border: 1px solid #ced4da;
-  /* MUDANÇA: Borda cinza */
   color: #2A3E4B;
-  /* MUDANÇA: Texto escuro */
->>>>>>> 0b59b6a119264495ea5c7dac36d7020087c528be
   padding: 10px;
   border-radius: 6px;
   font-size: 14px;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  /* MUDANÇA: Seta do dropdown agora é escura */
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23343a40' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 10px center;
@@ -81,48 +57,33 @@
   align-items: center;
   gap: 16px;
   padding: 16px 24px;
-<<<<<<< HEAD
-  color: #343a40; /* MUDANÇA: Texto escuro */
-=======
   color: #343a40;
-  /* MUDANÇA: Texto escuro */
->>>>>>> 0b59b6a119264495ea5c7dac36d7020087c528be
   text-decoration: none;
   font-size: 16px;
   transition: background-color 0.2s;
 }
 
 .sidebar-nav li:not(.active) a:hover {
-<<<<<<< HEAD
-  background-color: #f8f9fa; /* Fundo cinza claro no hover */
+  background-color: #f8f9fa;
 }
 
 .sidebar-nav li a:hover {
-  background-color: #f8f9fa; /* Fundo cinza claro no hover */
-  color: #090f13; /* MUDANÇA: Garante que o texto fique escuro no hover */
-=======
+  color: #090f13;
   background-color: #F0F0F0;
-  /* Fundo cinza claro no hover */
->>>>>>> 0b59b6a119264495ea5c7dac36d7020087c528be
 }
 
 /* --- Estilo do Item Ativo (INVERTIDO) --- */
 .sidebar-nav li.active {
-<<<<<<< HEAD
-  background-color: #2A3E4B; /* MUDANÇA: Fundo escuro para o item ativo */
-}
-
-.sidebar-nav li.active a {
-  color: #FFFFFF; /* MUDANÇA: Texto branco para o item ativo */
-=======
   background-color: #2A3E4B;
-  /* MUDANÇA: Fundo escuro para o item ativo */
 }
 
 .sidebar-nav li.active a {
   color: #FFFFFF;
-  /* MUDANÇA: Texto branco para o item ativo */
->>>>>>> 0b59b6a119264495ea5c7dac36d7020087c528be
+  background-color: #2A3E4B;
+}
+
+.sidebar-nav li.active a {
+  color: #FFFFFF;
   font-weight: 600;
 }
 
@@ -136,13 +97,7 @@
   align-items: center;
   gap: 16px;
   padding: 16px 0;
-<<<<<<< HEAD
-  color: #343a40; /* MUDANÇA: Texto escuro */
-  text-decoration: none;
-  font-size: 16px;
-=======
   color: #343a40;
-  /* MUDANÇA: Texto escuro */
   text-decoration: none;
   font-size: 16px;
 }
@@ -150,5 +105,4 @@
 .sidebar-bottom a:hover {
   color: darkred;
   font-weight: 600;
->>>>>>> 0b59b6a119264495ea5c7dac36d7020087c528be
 }

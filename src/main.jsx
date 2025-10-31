@@ -29,11 +29,7 @@ function Root() {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <DashboardLayout>
-<<<<<<< HEAD
-    <EmployeesTable/>
-=======
       <EmployeesTable />
->>>>>>> 0b59b6a119264495ea5c7dac36d7020087c528be
     </DashboardLayout>
   </React.StrictMode>,
 )
