@@ -20,7 +20,7 @@ function EmployeesTable() {
   const [error, setError] = useState(null);
 
   // Novos estados para a funcionalidade da UI
-  const [searchTerm, setSearchTerm] = useState(''); 
+  const [searchTerm, setSearchTerm] = useState('');
 
   // --- BUSCA DE DADOS (useEffect do código original, levemente adaptado) ---
   useEffect(() => {
@@ -95,58 +95,60 @@ function EmployeesTable() {
       <div className="funcionarios-container">
 
         <header className="page-header">
-  <h1>Funcionários</h1>
-  <button className="btn btn-primary">CADASTRAR FUNCIONÁRIO</button>
-</header>
+          <h1>Funcionários</h1>
+          <button className="btn btn-primary">CADASTRAR FUNCIONÁRIO</button>
+        </header>
 
-<div className="search-container">
-  <div className="search-input-wrapper">
-    <input 
-      type="text" 
-      placeholder="Nome, cargo/função" 
-      className="search-input"
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-    />
-    <div className="search-icon">
-      <SearchIcon />
-    </div>
-  </div>
-</div>
+        <div className="search-container">
+          <label htmlFor="searchInput">Pesquisar</label>
+          <div className="search-input-wrapper">
+            <input
+              id="searchInput"
+              type="text"
+              className="search-input"
+              placeholder="Nome, cargo/função"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <div className="search-icon">
+              <SearchIcon />
+            </div>
+          </div>
+        </div>
 
-      <main className="tabela-container">
-        <table>
-          <thead>
-            <tr>
-              <th><strong>Nome Completo</strong></th>
-              <th><strong>Cargo/Função</strong></th>
-              <th><strong>Celular</strong></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredEmployees.length > 0 ? (
-              filteredEmployees.map((emp) => (
-                <tr key={emp.id}>
-                  <td data-label="Nome Completo">{emp.name}</td>
-                  <td data-label="Cargo/Função">{emp.function}</td>
-                  <td data-label="Celular">{emp.cellphone || '—'}</td>
-                </tr>
-              ))
-            ) : (
+        <main className="tabela-container">
+          <table>
+            <thead>
               <tr>
-                <td colSpan="4" className="no-results">Nenhum funcionário encontrado.</td>
+                <th><strong>Nome Completo</strong></th>
+                <th><strong>Cargo/Função</strong></th>
+                <th><strong>Celular</strong></th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </main>
-      
-      <footer className="funcionarios-footer">
-        {/* Lógica de paginação virá aqui */}
-        <span>Rows per page: 8</span>
-        <span>1-8 of {filteredEmployees.length}</span>
-        {/* Adicionar ícones de navegação aqui */}
-      </footer>
+            </thead>
+            <tbody>
+              {filteredEmployees.length > 0 ? (
+                filteredEmployees.map((emp) => (
+                  <tr key={emp.id}>
+                    <td data-label="Nome Completo">{emp.name}</td>
+                    <td data-label="Cargo/Função">{emp.function}</td>
+                    <td data-label="Celular">{emp.cellphone || '—'}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="no-results">Nenhum funcionário encontrado.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </main>
+
+        <footer className="funcionarios-footer">
+          {/* Lógica de paginação virá aqui */}
+          <span>Rows per page: 8</span>
+          <span>1-8 of {filteredEmployees.length}</span>
+          {/* Adicionar ícones de navegação aqui */}
+        </footer>
       </div>
     </div>
   );
