@@ -1,53 +1,107 @@
 /* src/components/CadastroFuncionarioModal/CadastroFuncionarioModal.css */
+
 .form-funcionario .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 20px;
 }
+
+/* NOVO: Estilo para a linha com múltiplos campos */
+.form-row {
+    display: flex;
+    gap: 20px;
+    /* Espaço entre os campos */
+}
+
+/* Faz com que cada grupo de formulário dentro da linha ocupe o espaço disponível igualmente */
+.form-row .form-group {
+    flex: 1;
+    margin-bottom: 20px;
+}
+
 
 .form-funcionario label {
     display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
+    margin-bottom: 8px;
+    font-weight: 500;
     color: #555;
+    /* Cor do label um pouco mais suave */
+    font-size: 14px;
 }
 
 .form-funcionario input,
-.form-funcionario textarea {
+.form-funcionario textarea,
+.form-funcionario select {
+    /* Adicionamos o select aqui */
     width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
+    padding: 12px 14px;
+    /* Aumentei um pouco o padding vertical */
+    border: 1px solid #CED4DA;
+    /* Borda cinza, como no protótipo */
+    border-radius: 6px;
+    /* Bordas um pouco menos arredondadas */
+    font-size: 14px;
     box-sizing: border-box;
-    /* Garante que padding não afete a largura total */
+    background-color: #FFFFFF;
+    color: #333;
+    font-family: inherit;
+    /* Garante que a fonte do select seja a mesma */
 }
 
-.form-funcionario textarea {
-    resize: vertical;
+/* Efeito de foco mais sutil, como no protótipo */
+.form-funcionario input:focus,
+.form-funcionario textarea:focus,
+.form-funcionario select:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
 }
+
+/* Ajustes específicos para o <select> para parecer com um <input> */
+.form-funcionario select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px 12px;
+}
+
 
 .form-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
+    gap: 16px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #E9ECEF;
 }
 
 .form-actions button {
-    padding: 0.8rem 1.5rem;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    font-weight: bold;
+    padding: 10px 24px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .btn-cancel {
+    background-color: transparent;
+    color: #555;
+    border-color: #CED4DA;
+}
+
+.btn-cancel:hover {
     background-color: #f1f1f1;
-    color: #333;
 }
 
 .btn-confirm {
-    background-color: #007bff;
-    /* Cor principal do seu sistema */
+    background-color: #2A3E4B;
     color: white;
+    border-color: #2A3E4B;
+}
+
+.btn-confirm:hover {
+    opacity: 0.9;
 }

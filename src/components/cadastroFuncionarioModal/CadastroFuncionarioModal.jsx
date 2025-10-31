@@ -1,7 +1,7 @@
 // src/components/CadastroFuncionarioModal/CadastroFuncionarioModal.jsx
 import React, { useState } from 'react';
 import Modal from '../Modal/Modal';
-import './CadastroFuncionarioModal.css'; // CSS específico para o formulário
+import './CadastroFuncionarioModal.css';
 
 function CadastroFuncionarioModal({ isOpen, onClose }) {
     const [nome, setNome] = useState('');
@@ -12,11 +12,8 @@ function CadastroFuncionarioModal({ isOpen, onClose }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Aqui vai a lógica para enviar os dados para o back-end
         const novoFuncionario = { nome, cargo, telefone, restricoes, disponibilidade };
-        console.log('Dados para cadastrar:', novoFuncionario);
-
-        // Após o sucesso, você pode limpar os campos e fechar o modal
+        console.log('Enviando novo funcionário:', novoFuncionario);
         onClose();
     };
 
@@ -24,61 +21,44 @@ function CadastroFuncionarioModal({ isOpen, onClose }) {
         <Modal isOpen={isOpen} onClose={onClose} title="Cadastrar Funcionário">
             <form onSubmit={handleSubmit} className="form-funcionario">
                 <div className="form-group">
-                    <label htmlFor="nome">Nome Completo</label>
-                    <input
-                        type="text"
-                        id="nome"
-                        value={nome}
-                        onChange={(e) => setNome(e.target.value)}
-                        required
-                    />
+                    <label htmlFor="nome">Nome Completo *</label>
+                    <input type="text" id="nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
                 </div>
-                <div className="form-group">
-                    <label htmlFor="cargo">Cargo/Função</label>
-                    <input
-                        type="text"
-                        id="cargo"
-                        value={cargo}
-                        onChange={(e) => setCargo(e.target.value)}
-                        required
-                    />
+
+                {/* ===== MUDANÇA PRINCIPAL AQUI: Linha com duas colunas ===== */}
+                <div className="form-row">
+                    <div className="form-group">
+                        <label htmlFor="cargo">Cargo/Função *</label>
+                        <select id="cargo" value={cargo} onChange={(e) => setCargo(e.target.value)} required>
+                            <option value="" disabled>Selecione um cargo</option>
+                            <option value="Operador da ETA">Operador da ETA</option>
+                            <option value="Encanador">Encanador</option>
+                            <option value="Técnica de Tratamento">Técnica de Tratamento</option>
+                            <option value="Supervisor">Supervisor</option>
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="telefone">Telefone/Celular *</label>
+                        <input type="tel" id="telefone" value={telefone} onChange={(e) => setTelefone(e.target.value)} required />
+                    </div>
                 </div>
+                {/* ========================================================== */}
+
                 <div className="form-group">
-                    <label htmlFor="telefone">Telefone</label>
-                    <input
-                        type="tel"
-                        id="telefone"
-                        placeholder="(00) 00000-0000"
-                        value={telefone}
-                        onChange={(e) => setTelefone(e.target.value)}
-                    />
+                    <label htmlFor="restricoes">Restrições *</label>
+                    {/* Por enquanto, manteremos como textarea. A versão com "tags" é mais complexa. */}
+                    <textarea id="restricoes" rows="3" value={restricoes} onChange={(e) => setRestricoes(e.target.value)} required></textarea>
                 </div>
+
                 <div className="form-group">
-                    <label htmlFor="restricoes">Restrições</label>
-                    <textarea
-                        id="restricoes"
-                        rows="3"
-                        value={restricoes}
-                        onChange={(e) => setRestricoes(e.target.value)}
-                    ></textarea>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="disponibilidade">Disponibilidade</label>
-                    <textarea
-                        id="disponibilidade"
-                        rows="3"
-                        value={disponibilidade}
-                        onChange={(e) => setDisponibilidade(e.target.value)}
-                    ></textarea>
+                    <label htmlFor="disponibilidade">Disponibilidade *</label>
+                    <textarea id="disponibilidade" rows="3" value={disponibilidade} onChange={(e) => setDisponibilidade(e.target.value)} required></textarea>
                 </div>
 
                 <div className="form-actions">
-                    <button type="button" className="btn-cancel" onClick={onClose}>
-                        Cancelar
-                    </button>
-                    <button type="submit" className="btn-confirm">
-                        Cadastrar
-                    </button>
+                    <button type="button" className="btn-cancel" onClick={onClose}>Cancelar</button>
+                    {/* O botão do protótipo é "EDITAR", mas como este é o modal de cadastro, "Cadastrar" está correto. */}
+                    <button type="submit" className="btn-confirm">Cadastrar</button>
                 </div>
             </form>
         </Modal>
