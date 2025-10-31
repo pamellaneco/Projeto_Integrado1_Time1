@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { getAllEmployees } from '../employeeService.js'; // Ajuste o caminho se necessário
 import './EmployeesTable.css'; // Crie este arquivo para os estilos
 import SearchIcon from './SearchIcon';
+import CadastroFuncionarioModal from './cadastroFuncionarioModal/CadastroFuncionarioModal.jsx';
 
 // DADOS MOCKADOS
 const mockFuncionarios = [
@@ -21,6 +22,7 @@ function EmployeesTable() {
 
   // Novos estados para a funcionalidade da UI
   const [searchTerm, setSearchTerm] = useState('');
+  const [isCadastroModalOpen, setCadastroModalOpen] = useState(false);
 
   // --- BUSCA DE DADOS (useEffect do código original, levemente adaptado) ---
   useEffect(() => {
@@ -34,6 +36,7 @@ function EmployeesTable() {
         // eslint-disable-next-line no-console
         console.log('Dados recebidos do back-end:', data);
         let merged = mockFuncionarios;
+        console.log('O modal está aberto?', isCadastroModalOpen);
         if (Array.isArray(data) && data.length > 0) {
           merged = data.map((d) => {
             const mock = mockFuncionarios.find(m => m.id === d.id || m.name === d.name);
@@ -96,7 +99,11 @@ function EmployeesTable() {
 
         <header className="page-header">
           <h1>Funcionários</h1>
-          <button className="btn btn-primary">CADASTRAR FUNCIONÁRIO</button>
+          <button
+            className="btn btn-primary"
+            onClick={() => setCadastroModalOpen(true)}>
+            CADASTRAR FUNCIONÁRIO
+          </button>
         </header>
 
         <div className="search-container">
@@ -150,6 +157,10 @@ function EmployeesTable() {
           {/* Adicionar ícones de navegação aqui */}
         </footer>
       </div>
+      <CadastroFuncionarioModal
+        isOpen={isCadastroModalOpen}
+        onClose={() => setCadastroModalOpen(false)}
+      />
     </div>
   );
 }

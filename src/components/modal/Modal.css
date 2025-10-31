@@ -14,37 +14,54 @@
 
 .modal-content {
     background-color: #fff;
-    padding: 2rem;
+    padding: 30px 40px;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    min-width: 500px;
-    /* Ajuste conforme o design */
-    max-width: 90%;
+    box-sizing: border-box;
+
+    /* ================== MUDANÇAS AQUI ================== */
+    width: 950px;
+    /* Largura exata do Figma */
+    height: 545px;
+    /* Altura exata do Figma */
+
+    /* Transforma o modal em um container flex vertical */
+    display: flex;
+    flex-direction: column;
+    /* ======================================================= */
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 1rem;
-    margin-bottom: 1.5rem;
+    /* Removemos a margem inferior para o flexbox controlar o espaço */
+    padding-bottom: 20px;
+}
+
+/* NOVO: Faz o corpo do modal (o formulário) crescer e ocupar o espaço */
+.modal-body {
+    flex: 1;
+    /* Essencial para empurrar os botões para baixo */
+    overflow-y: auto;
+    /* Adiciona scroll se o conteúdo for muito grande */
+    padding-top: 20px;
+    /* Adiciona um espaço acima do formulário */
 }
 
 .modal-header h2 {
     margin: 0;
-    font-size: 1.5rem;
-    color: #333;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1D2B33;
 }
 
 .modal-close-button {
     background: none;
     border: none;
-    font-size: 2rem;
+    font-size: 28px;
     cursor: pointer;
     color: #888;
-}
-
-.modal-body {
-    /* O conteúdo do formulário vai aqui */
+    padding: 0;
+    line-height: 1;
 }
