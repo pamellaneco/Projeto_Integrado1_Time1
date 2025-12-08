@@ -6,10 +6,18 @@
 /* --- Cabeçalho do calendário --- */
 .calendar-header-actions {
     display: flex;
-    justify-content: space-between; /* Empurra Navegação para a esquerda e Ações para a direita */
+    justify-content: space-between;
+    /* Empurra Navegação para a esquerda e Ações para a direita */
     align-items: center;
     margin-bottom: 20px;
     padding: 10px 0;
+}
+
+.calendar-week-row {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 4px;
+    width: 100%;
 }
 
 /* Bloco que contém o Título e as Setas de Navegação */
@@ -25,7 +33,8 @@
     border: none;
     padding: 8px 12px;
     cursor: pointer;
-    font-size: 28px; /* maior para parecer mais aberto */
+    font-size: 28px;
+    /* maior para parecer mais aberto */
     line-height: 1;
     color: #1D2B33;
     display: inline-flex;
@@ -35,19 +44,22 @@
 }
 
 .nav-button:hover {
-    background-color: rgba(29,43,51,0.06);
+    background-color: rgba(29, 43, 51, 0.06);
     border-radius: 6px;
 }
 
 .month-title {
-    font-size: 32px; /* conforme protótipo */
+    font-size: 32px;
+    /* conforme protótipo */
     font-weight: 500;
     margin: 0 12px;
-    color: #1D2B33; /* Ajustado para nova cor solicitada */
+    color: #1D2B33;
+    /* Ajustado para nova cor solicitada */
 }
 
 .month-title .month-text {
-    font-weight: 800; /* Extra Bold */
+    font-weight: 800;
+    /* Extra Bold */
     display: inline-block;
     margin-right: 6px;
     text-transform: capitalize;
@@ -55,14 +67,16 @@
 }
 
 .month-title .prefix-text {
-    font-weight: 800; /* Extra Bold for 'Escala Mensal' */
+    font-weight: 800;
+    /* Extra Bold for 'Escala Mensal' */
     display: inline-block;
     margin-right: 6px;
     font-size: 32px;
 }
 
 .month-title .year-text {
-    font-weight: 400; /* Regular */
+    font-weight: 400;
+    /* Regular */
     display: inline-block;
     color: #1D2B33;
     opacity: 0.95;
@@ -75,7 +89,8 @@
 .action-buttons {
     display: flex;
     align-items: center;
-    gap: 8px; /* Espaço entre os botões */
+    gap: 8px;
+    /* Espaço entre os botões */
 }
 
 .btn-action {
@@ -89,19 +104,28 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 140px; /* base width for all action buttons */
-    height: 40px; /* uniform height */
+    min-width: 140px;
+    /* base width for all action buttons */
+    height: 40px;
+    /* uniform height */
 }
 
-.btn-action.primary { /* Ex: PUBLICAR */
+.btn-action.primary {
+    /* Ex: PUBLICAR */
     background-color: #3A5566;
-    color: #ffffff; /* texto em branco */
+    color: #ffffff;
+    /* texto em branco */
 }
-.btn-action.secondary { /* Ex: BAIXAR */
+
+.btn-action.secondary {
+    /* Ex: BAIXAR */
     background-color: #3A5566;
-    color: #ffffff; /* texto em branco */
+    color: #ffffff;
+    /* texto em branco */
 }
-.btn-action.edit { /* Botão EDITAR */
+
+.btn-action.edit {
+    /* Botão EDITAR */
     background-color: #3A5566;
     color: #ffffff;
     border: none;
@@ -126,10 +150,10 @@
 }
 
 /* Configuração da Grid para 7 colunas (Dias da semana) */
-.weekdays-header,
-.days-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
+.weekdays-header {
+    margin-top: 20px;
+    display: flex;
+    width: 100%;
     gap: 0;
 }
 
@@ -137,9 +161,12 @@
     padding: 10px 6px;
     background: transparent;
     text-align: center;
-    font-weight: 600; /* Semi Bold */
+    font-weight: 600;
+    /* Semi Bold */
     border-bottom: 1px solid transparent;
-    font-size: 16px; /* conforme protótipo */
+    flex: 1 0;
+    font-size: 16px;
+    /* conforme protótipo */
     color: #1D2B33;
 }
 
@@ -148,6 +175,7 @@
 }
 
 .day-cell {
+    flex: 1 0;
     min-height: 100px;
     border-right: 1px solid #eee;
     border-bottom: 1px solid #eee;
@@ -156,18 +184,22 @@
     /* usar flex column para permitir centralizar apenas o dia atual */
     display: flex;
     flex-direction: column;
-    align-items: center; /* centraliza horizontalmente o conteúdo por padrão */
-    justify-content: flex-start; /* alinhamento vertical padrão (top) */
+    align-items: center;
+    /* centraliza horizontalmente o conteúdo por padrão */
+    justify-content: flex-start;
+    /* alinhamento vertical padrão (top) */
 }
 
 .day-number {
-    font-size: 16px; /* conforme protótipo */
+    font-size: 16px;
+    /* conforme protótipo */
     color: #1D2B33;
     /* Centraliza horizontalmente o número dentro da célula */
     width: 100%;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* número próximo ao topo, como no protótipo */
+    align-items: flex-start;
+    /* número próximo ao topo, como no protótipo */
     margin: 6px 0;
 }
 
@@ -180,25 +212,28 @@
 .event-block {
     padding: 6px 8px;
     border-radius: 6px;
-    font-size: 10px; /* conforme protótipo */
+    font-size: 10px;
+    /* conforme protótipo */
     background: #e9ecef;
-    color: #1D2B33; /* nome do funcionário */
+    color: #1D2B33;
+    /* nome do funcionário */
 }
 
 .event-block.yellow {
     background: #FFE599;
     color: #1D2B33;
-    border: 1px solid rgba(0,0,0,0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .event-block.blue {
     background: #6FA8DC;
     color: #1D2B33;
-    border: 1px solid rgba(0,0,0,0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .inactive {
-    opacity: 0.5; /* dias que não estão no mês */
+    opacity: 0.5;
+    /* dias que não estão no mês */
 }
 
 .today {
@@ -211,18 +246,24 @@
     /* mantemos alinhamento no topo para que o dia atual fique alinhado com os demais */
     justify-content: flex-start;
 }
+
 /* Indica o dia atual com um círculo escuro e número branco (ajustado para ficar parecido com o protótipo) */
 .today .day-number {
-    background-color: #1D2B33; /* cor de fundo conforme protótipo */
-    color: #ffffff; /* número em branco */
-    width: 30px; /* compacto */
+    background-color: #1D2B33;
+    /* cor de fundo conforme protótipo */
+    color: #ffffff;
+    /* número em branco */
+    width: 30px;
+    /* compacto */
     height: 30px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    font-weight: 700; /* mais forte para legibilidade */
-    font-size: 14px; /* reduzido para manter proporção */
+    font-weight: 700;
+    /* mais forte para legibilidade */
+    font-size: 14px;
+    /* reduzido para manter proporção */
     line-height: 1;
     /* centraliza horizontalmente e mantém alinhamento vertical com os demais dias */
     margin: 6px auto;
@@ -237,9 +278,12 @@
 
 /* Action buttons (BAIXAR, PUBLICAR) */
 .btn-action {
-    background-color: #3A5566; /* solicitado */
-    color: #1D2B33; /* solicitado */
-    font-weight: 600; /* Semi Bold */
+    background-color: #3A5566;
+    /* solicitado */
+    color: #1D2B33;
+    /* solicitado */
+    font-weight: 600;
+    /* Semi Bold */
     font-size: 14px;
     padding: 10px 18px;
     border-radius: 6px;

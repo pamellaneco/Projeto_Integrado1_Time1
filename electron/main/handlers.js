@@ -54,9 +54,25 @@ ipcMain.handle('get-scale', async (_, params) => {
   }
 });
 
-ipcMain.handle('generate-scale', async (_, params) => {
+ipcMain.handle('create-scale', async (_, params) => {
   try {
-    return scaleService.generate(params);
+    return await scaleService.createScale(params);
+  } catch (err) {
+    return { error: err?.message ?? String(err) };
+  }
+});
+
+ipcMain.handle('get-day-modal-data', async (_, params) => {
+  try {
+    return scaleService.getEmployeesForDayModal(params);
+  } catch (err) {
+    return { error: err?.message ?? String(err) };
+  }
+});
+
+ipcMain.handle('update-manual-shifts', async (_, params) => {
+  try {
+    return scaleService.updateManualShifts(params);
   } catch (err) {
     return { error: err?.message ?? String(err) };
   }

@@ -8,14 +8,24 @@ export const getScale = async (params) => {
 };
 
 /**
- * Gera uma nova escala no processo principal do Electron.
- * @param {Object} payload - Dados para geração da escala.
- * @param {number} payload.month - Mês (1-12).
- * @param {number} payload.year - Ano.
- * @param {string} payload.type - Tipo de escala ('ETA' | 'PLANTAO_TARDE').
- * @returns {Promise<Object>} Uma promessa que resolve para o resultado da geração.
+ * Cria uma nova escala com os funcionários e feriados selecionados.
+ * @param {Object} params - { month, year, employeeIds: { ETA: [], PLANTAO_TARDE: [] }, holidays: [] }
  */
-export const generateScale = async (payload) => {
-  // Error throw should be handled on frontend function call.
-  return await window.ipcRenderer.invoke('generate-scale', payload);
+export const createScale = async (params) => {
+  return await window.ipcRenderer.invoke('create-scale', params);
 };
+
+/**
+ * Busca dados para o modal de edição de turno: elegíveis e alocados para o dia.
+ */
+export const getDayModalData = async (params) => {
+  return await window.ipcRenderer.invoke('get-day-modal-data', params);
+};
+
+/**
+ * Atualiza os turnos manualmente com base na lista final de IDs.
+ */
+export const updateManualShifts = async (params) => {
+  return await window.ipcRenderer.invoke('update-manual-shifts', params);
+};
+

@@ -1,62 +1,84 @@
 import { useState, useEffect } from 'react';
-import './CreateScaleModal.css';
 import { findEligibleEmployees } from '../../ipc-bridge/employee';
+import { createScale } from '../../ipc-bridge/scale';
+import './CreateScaleModal.css';
 
 function CreateScaleModal({ isOpen, onClose, onSubmit, month, year }) {
     const [step, setStep] = useState(1);
-    const [selectedType, setSelectedType] = useState('ETA');
-    const [selectedEmployees, setSelectedEmployees] = useState([]);
+    const [selectedType, setSelectedType] = useState('PLANTAO_TARDE');
+
+    const [selectedEmployeesETA, setSelectedEmployeesETA] = useState([]);
+    const [selectedEmployeesPlantao, setSelectedEmployeesPlantao] = useState([]);
+
     const [selectedHolidays, setSelectedHolidays] = useState([]);
     const [employees, setEmployees] = useState([]);
 
-    useEffect(() => {
-        if (isOpen) {
-            setStep(1);
-            setSelectedType('ETA');
-            setSelectedEmployees([]);
-            setSelectedHolidays([]);
-            loadEmployees();
-        }
-    }, [isOpen]);
+    const filteredEmployees = employees.filter(emp => {
+        const availabilities = emp.availabilities.split(',');
+        return availabilities.includes(selectedType);
+    });
+
+    const currentSelectedEmployees = selectedType === 'ETA' ? selectedEmployeesETA : selectedEmployeesPlantao;
 
     const loadEmployees = async () => {
         try {
             const employees = await findEligibleEmployees();
-            if (Array.isArray(employees)) {
-                setEmployees(employees);
-            } else {
-                setEmployees([]);
+            if (!Array.isArray(employees)) setEmployees([]);
+
+            setEmployees(employees);
+
+            const etaEmployees = [];
+            const plantaoEmployees = [];
+
+            for (const employee of employees) {
+                const availabilities = employee.availabilities.split(',');
+
+                if (availabilities.includes('ETA')) {
+                    etaEmployees.push(employee);
+                }
+
+                if (availabilities.includes('PLANTAO_TARDE')) {
+                    plantaoEmployees.push(employee);
+                }
             }
+
+            setSelectedEmployeesETA(etaEmployees);
+            setSelectedEmployeesPlantao(plantaoEmployees);
         } catch (error) {
             console.error('Erro ao carregar funcionários:', error);
             setEmployees([]);
         }
     };
 
-    const toggleEmployee = (employeeId) => {
-        setSelectedEmployees(prev => {
-            if (prev.includes(employeeId)) {
-                return prev.filter(id => id !== employeeId);
+    const toggleEmployee = (employee) => {
+        const setCurrentSelectedEmployees = selectedType === 'ETA' ? setSelectedEmployeesETA : setSelectedEmployeesPlantao;
+
+        setCurrentSelectedEmployees(prev => {
+            const exists = prev.find(e => e.id === employee.id);
+
+            if (exists) {
+                return prev.filter(e => e.id !== employee.id);
             } else {
-                return [...prev, employeeId];
+                return [...prev, employee];
             }
         });
     };
 
-    const toggleHoliday = (dateStr) => {
+    const toggleHoliday = (day) => {
         setSelectedHolidays(prev => {
-            if (prev.includes(dateStr)) {
-                return prev.filter(d => d !== dateStr);
+            if (prev.includes(day)) {
+                return prev.filter(d => d !== day);
             } else {
-                return [...prev, dateStr];
+                return [...prev, day];
             }
         });
     };
 
     const handleNext = () => {
         if (step === 1) {
-            if (selectedEmployees.length === 0) {
-                alert('Selecione pelo menos um funcionário');
+            // Verificar se há funcionários selecionados em ambas as escalas
+            if (selectedEmployeesETA.length === 0 || selectedEmployeesPlantao.length === 0) {
+                alert('Selecione pelo menos um funcionário em cada escala (ETA e Plantão da Tarde).');
                 return;
             }
             setStep(2);
@@ -69,44 +91,75 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year }) {
         }
     };
 
-    const handleFinish = () => {
-        const payload = {
-            month,
-            year,
-            type: selectedType,
-            employeeIds: selectedEmployees,
-            holidays: selectedHolidays
-        };
-        onSubmit(payload);
-        onClose();
+    const handleFinish = async () => {
+        try {
+            const payload = {
+                month, // 1 to 12
+                year,
+                employeeIds: {
+                    ETA: selectedEmployeesETA,
+                    PLANTAO_TARDE: selectedEmployeesPlantao
+                },
+                holidays: selectedHolidays
+            };
+
+            const result = await createScale(payload);
+
+            onSubmit(result);
+            onClose();
+        } catch (error) {
+            console.error('Error creating scale:', error);
+            alert(`Erro ao criar escala: ${error.message}`);
+        }
     };
 
     const renderCalendar = () => {
-        const daysInMonth = new Date(year, month, 0).getDate();
+        const daysInMonth = new Date(year, month, 0).getDate(); // trick
         const firstDay = new Date(year, month - 1, 1).getDay();
 
-        const calendarDays = [];
+        const calendarCells = [];
 
+        // Empty cells for days before the first day of the month
         for (let i = 0; i < firstDay; i++) {
-            calendarDays.push(<div key={`empty-${i}`} className="modal-day-cell empty"></div>);
+            calendarCells.push(<div key={`empty-${i}`} className="modal-day-cell empty"></div>);
         }
 
+        // Actual days of the month
         for (let day = 1; day <= daysInMonth; day++) {
-            const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const isSelected = selectedHolidays.includes(dateStr);
+            const isSelected = selectedHolidays.includes(day);
 
-            calendarDays.push(
+            calendarCells.push(
                 <div
                     key={day}
                     className={`modal-day-cell ${isSelected ? 'selected' : ''}`}
-                    onClick={() => toggleHoliday(dateStr)}
+                    onClick={() => toggleHoliday(day)}
                 >
                     {day}
                 </div>
             );
         }
 
-        return calendarDays;
+        // Fill remaining cells to complete the grid (ensure we have complete weeks)
+        const totalCells = calendarCells.length;
+        const remainingCells = totalCells % 7;
+        if (remainingCells !== 0) {
+            const cellsToAdd = 7 - remainingCells;
+            for (let i = 0; i < cellsToAdd; i++) {
+                calendarCells.push(<div key={`fill-${i}`} className="modal-day-cell empty"></div>);
+            }
+        }
+
+        // Group cells into rows of 7 (starting on Sunday)
+        const rows = [];
+        for (let i = 0; i < calendarCells.length; i += 7) {
+            rows.push(
+                <div key={Math.floor(i / 7)} className="calendar-week-row">
+                    {calendarCells.slice(i, i + 7)}
+                </div>
+            );
+        }
+
+        return rows;
     };
 
     const getMonthName = () => {
@@ -117,11 +170,16 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year }) {
         return monthNames[month - 1];
     };
 
-    const filteredEmployees = employees.filter(emp => {
-        if (!emp.availabilities) return false;
-        const availabilities = emp.availabilities.split(',');
-        return availabilities.includes(selectedType);
-    });
+    useEffect(() => {
+        if (isOpen) {
+            setStep(1);
+            setSelectedType('PLANTAO_TARDE');
+            setSelectedEmployeesETA([]);
+            setSelectedEmployeesPlantao([]);
+            setSelectedHolidays([]);
+            loadEmployees();
+        }
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -136,6 +194,7 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year }) {
                             Funcionários - <span>{getMonthName()} {year}</span>
                         </h2>
 
+                        {/* Toogles eligibility tab */}
                         <div className="tabs-container">
                             <button
                                 className={`tab-btn ${selectedType === 'PLANTAO_TARDE' ? 'active' : 'inactive'}`}
@@ -153,13 +212,16 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year }) {
 
                         <div className="list-header">
                             Funcionário
-                            {selectedEmployees.length > 0 && (
-                                <span className="selection-count">
-                                    {selectedEmployees.length} selecionado{selectedEmployees.length > 1 ? 's' : ''}
-                                </span>
-                            )}
+                            {(() => {
+                                return currentSelectedEmployees.length > 0 && (
+                                    <span className="selection-count">
+                                        {currentSelectedEmployees.length} selecionado{currentSelectedEmployees.length > 1 ? 's' : ''}
+                                    </span>
+                                );
+                            })()}
                         </div>
 
+                        {/* Employee toggle list */}
                         <div className="employee-list">
                             {filteredEmployees.length === 0 && (
                                 <div className="empty-state">
@@ -173,8 +235,10 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year }) {
                                     <label className="switch">
                                         <input
                                             type="checkbox"
-                                            checked={selectedEmployees.includes(employee.id)}
-                                            onChange={() => toggleEmployee(employee.id)}
+                                            checked={(() => {
+                                                return Boolean(currentSelectedEmployees.find(e => e.id === employee.id));
+                                            })()}
+                                            onChange={() => toggleEmployee(employee)}
                                         />
                                         <span className="slider"></span>
                                     </label>
@@ -201,7 +265,7 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year }) {
 
                         {selectedHolidays.length > 0 && (
                             <div className="holidays-info">
-                                {selectedHolidays.length} feriado{selectedHolidays.length > 1 ? 's' : ''} selecionado{selectedHolidays.length > 1 ? 's' : ''}
+                                {selectedHolidays.length} feriado{selectedHolidays.length > 1 ? 's' : ''} {" "}selecionado{selectedHolidays.length > 1 ? 's' : ''}
                             </div>
                         )}
 
