@@ -91,16 +91,18 @@ Para rodar o projeto, você precisará ter instalado:
     cd Projeto_Integrado1_Time1
     ```
 
-2.  **Instale as dependências**:
+2. Copie o .env.example para um novo arquivo .env (rode `cp .env.example .env`) 
+
+3.  **Instale as dependências**:
 
     ```bash
     npm install
     ```
 
-3.  **Execute a aplicação:**
+4.  **Execute a aplicação:**
 
     ```bash
-    npm start
+    npm run dev
     ```
 
 ## ✒️ Autores

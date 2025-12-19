@@ -32,6 +32,7 @@ export class EmployeeRepository {
           e.name,
           e."function",
           e.cellphone,
+          e.email,
           (
             SELECT GROUP_CONCAT(r.type)
             FROM employee_restrictions r
@@ -73,6 +74,7 @@ export class EmployeeRepository {
           e.name,
           e."function",
           e.cellphone,
+          e.email,
           (
             SELECT GROUP_CONCAT(r.type)
             FROM employee_restrictions r
@@ -102,6 +104,7 @@ export class EmployeeRepository {
           e.id,
           e.name,
           e."function",
+          e.email,
           (
             SELECT GROUP_CONCAT(r.type)
             FROM employee_restrictions r
@@ -132,7 +135,7 @@ export class EmployeeRepository {
         ${selectClause}
         ${joinClause}
         ${whereClause}
-        GROUP BY e.id, e.name, e."function", e.cellphone 
+        GROUP BY e.id, e.name, e."function", e.cellphone, e.email
         ORDER BY e.name
       `);
 
@@ -148,7 +151,7 @@ export class EmployeeRepository {
 
   create(payload) {
     return this.db.transaction(() => {
-      const userInsert = this.db.prepare("INSERT INTO employees (id, name, function, cellphone) VALUES (@id, @name, @function, @cellphone)");
+      const userInsert = this.db.prepare("INSERT INTO employees (id, name, function, cellphone, email) VALUES (@id, @name, @function, @cellphone, @email)");
 
       const insertAvailability = this.db.prepare(
         "INSERT INTO employee_availabilities (id, employee_id, type) VALUES (@id, @employeeId, @type)"
@@ -165,6 +168,7 @@ export class EmployeeRepository {
         name: payload.name,
         function: payload.function,
         cellphone: payload.cellphone,
+        email: payload.email,
       });
 
       for (const availability of payload.availabilities) {
@@ -189,7 +193,7 @@ export class EmployeeRepository {
 
   update(payload) {
     this.db.transaction(() => {
-      const userUpdate = this.db.prepare("UPDATE employees SET name=@name, function=@function, cellphone=@cellphone WHERE id=@id");
+      const userUpdate = this.db.prepare("UPDATE employees SET name=@name, function=@function, cellphone=@cellphone, email=@email WHERE id=@id");
 
       const employeeId = payload.id;
 
@@ -198,6 +202,7 @@ export class EmployeeRepository {
         name: payload.name,
         function: payload.function,
         cellphone: payload.cellphone,
+        email: payload.email,
       });
 
       this.db

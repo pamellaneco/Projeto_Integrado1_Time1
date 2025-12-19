@@ -88,7 +88,7 @@ export class EmployeeService {
 const createEmployeeSchema = z.object({
   name: z.string("Nome é obrigatório.").min(4, "Mínimo de 4 caracteres"),
   function: z.string("Função é obrigatória."),
-  cellphone: z.string().regex(/^\(\d{2}\)\s\d{4,5}-\d{4}$/, "Formato inválido."),
+  email: z.string().email("Email inválido.").toLowerCase(),
   availabilities: z
     .array(z.enum(["ETA", "PLANTAO_TARDE"]))
     .min(1, "Funcionário deve ter pelo menos uma disponibilidade.")

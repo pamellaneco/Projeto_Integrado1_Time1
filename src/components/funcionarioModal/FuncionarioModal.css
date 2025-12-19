@@ -101,7 +101,7 @@
 .tag-input-container.disabled {
     background-color: #f4f4f4;
     /* Um cinza bem claro */
-    color: #555;
+    color: #1D2B33;
     cursor: not-allowed;
 }
 
@@ -135,6 +135,13 @@
     content: '';
 }
 
+/* Ajusta o fundo da label quando o campo está desabilitado */
+.form-group input:disabled+label,
+.form-group select:disabled+label,
+.tag-input-container.disabled+label {
+    background-color: #f4f4f4;
+}
+
 
 /* Quando o input está focado, muda a cor da borda e da label */
 .form-group input:focus,
@@ -146,6 +153,30 @@
 .form-group input:not(:placeholder-shown)+label,
 .form-group input:focus+label {
     color: #3A5566;
+}
+
+/* Estilo para input com erro */
+.form-group input.input-error {
+    border-color: #D73737;
+}
+
+.form-group input.input-error:focus {
+    border-color: #D73737;
+}
+
+.form-group input.input-error+label {
+    color: #D73737;
+}
+
+/* Mensagem de erro */
+.error-message {
+    position: absolute;
+    bottom: -1.3rem;
+    left: 0.75rem;
+    font-size: 0.75rem;
+    color: #D73737;
+    background-color: #ffffff;
+    padding: 0 0.25rem;
 }
 
 /* Seta para os dropdowns (select e campos de tag) */

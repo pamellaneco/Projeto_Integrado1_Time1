@@ -30,9 +30,27 @@ export class ScaleRepository {
         ORDER BY s.date ASC
       `).all(scale.id);
 
+      const holidays = this.db.prepare(`
+        SELECT day
+        FROM scale_holidays
+        WHERE scale_id = ?
+        ORDER BY day ASC
+      `).all(scale.id);
+
+      // Converter holidays para o formato esperado pelo frontend
+      const holidaysFormatted = holidays.map(h => {
+        const [year, monthNum] = scale.month.split('-');
+        const dayStr = String(h.day).padStart(2, '0');
+        return {
+          date: `${year}-${monthNum}-${dayStr}`,
+          name: 'Feriado'
+        };
+      });
+
       return {
         ...scale,
-        shifts: shifts
+        shifts: shifts,
+        holidays: holidaysFormatted
       };
 
     } catch (error) {
@@ -187,6 +205,16 @@ export class ScaleRepository {
     } catch (error) {
       console.error("Erro ao verificar feriado:", error);
       return false;
+    }
+  }
+
+  getScaleType(scaleId) {
+    try {
+      const result = this.db.prepare('SELECT type FROM scales WHERE id = ?').get(scaleId);
+      return result ? result.type : null;
+    } catch (error) {
+      console.error("Erro ao buscar tipo da escala:", error);
+      return null;
     }
   }
 }

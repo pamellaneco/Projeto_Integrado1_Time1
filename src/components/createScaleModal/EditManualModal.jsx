@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 // Importamos a busca de todos os funcionários e dados do dia
 import { findEligibleEmployees } from '../../ipc-bridge/employee';
 import { getDayModalData, updateManualShifts } from '../../ipc-bridge/scale'; 
+import ConflictModal from '../modal/ConflictModal';
 import './CreateScaleModal.css'; 
 
 function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
@@ -256,53 +257,12 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
                 </div>
 
                 {/* Modal de Confirmação de Violações */}
-                {pendingViolations && (
-                    <div className="modal-overlay" onClick={handleCancelViolations}>
-                        <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{maxWidth: '500px'}}>
-                            <button className="close-icon" onClick={handleCancelViolations}>✕</button>
-                            
-                            <h2 className="modal-title">⚠️ Restrições Detectadas</h2>
-                            
-                            <div style={{padding: '20px', maxHeight: '300px', overflowY: 'auto'}}>
-                                <p style={{marginBottom: '15px', color: '#666'}}>
-                                    As seguintes restrições foram encontradas:
-                                </p>
-                                <ul style={{listStyle: 'none', padding: 0}}>
-                                    {pendingViolations.map((violation, index) => (
-                                        <li key={index} style={{
-                                            padding: '10px',
-                                            marginBottom: '8px',
-                                            background: '#fff3cd',
-                                            borderLeft: '4px solid #ffc107',
-                                            borderRadius: '4px'
-                                        }}>
-                                            {violation}
-                                        </li>
-                                    ))}
-                                </ul>
-                                <p style={{marginTop: '20px', fontWeight: 'bold', color: '#333'}}>
-                                    Deseja continuar mesmo assim?
-                                </p>
-                            </div>
-
-                            <div className="modal-footer">
-                                <button 
-                                    className="btn-nav btn-prev-step1" 
-                                    onClick={handleCancelViolations}
-                                >
-                                    CANCELAR
-                                </button>
-                                <button 
-                                    className="btn-nav btn-finish" 
-                                    onClick={handleConfirmViolations}
-                                    style={{background: '#ffc107'}}
-                                >
-                                    CONFIRMAR E SALVAR
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                <ConflictModal
+                    isOpen={!!pendingViolations}
+                    onClose={handleCancelViolations}
+                    onConfirm={handleConfirmViolations}
+                    violations={pendingViolations}
+                />
             </div>
         </div>
     );

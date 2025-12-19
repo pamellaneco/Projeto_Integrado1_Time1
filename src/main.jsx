@@ -11,13 +11,13 @@ import LoginPage from './pages/LoginPage'
 
 function Root() {
   // use the current hash if present, otherwise default to login
-  const [route, setRoute] = React.useState(window.location.hash || '#/')
+  const [route, setRoute] = React.useState(window.location.hash || '#/login')
 
-  // React.useEffect(() => {
-  //   const onHash = () => setRoute(window.location.hash || '#/login')
-  //   window.addEventListener('hashchange', onHash)
-  //   return () => window.removeEventListener('hashchange', onHash)
-  // }, [])
+  React.useEffect(() => {
+     const onHash = () => setRoute(window.location.hash || '#/login')
+     window.addEventListener('hashchange', onHash)
+     return () => window.removeEventListener('hashchange', onHash)
+  }, [])
 
   // rotas mínimas:
   // - '#/login' -> LoginPage

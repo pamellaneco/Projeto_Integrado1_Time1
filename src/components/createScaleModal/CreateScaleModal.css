@@ -119,6 +119,32 @@
     max-height: 320px;
     overflow-y: auto;
     margin-bottom: 24px;
+    padding-right: 10px;
+}
+
+/* Estilos customizados para o scrollbar da lista de funcionários */
+.employee-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.employee-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.employee-list::-webkit-scrollbar-thumb {
+  background: #3A5566;
+  border-radius: 10px;
+}
+
+.employee-list::-webkit-scrollbar-thumb:hover {
+  background: #2a3f4d;
+}
+
+/* Para Firefox */
+.employee-list {
+  scrollbar-width: thin;
+  scrollbar-color: #3A5566 #f1f1f1;
 }
 
 .employee-row {

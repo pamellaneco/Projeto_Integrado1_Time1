@@ -1,31 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import './Scales.css';
-import { getScale } from '../ipc-bridge/scale';
+import { getScale, moveShiftDragDrop } from '../ipc-bridge/scale';
 import CreateScaleModal from './createScaleModal/CreateScaleModal';
-import EditManualModal from './createScaleModal/EditManualModal'; // Modal de edição manual
+import EditManualModal from './createScaleModal/EditManualModal';
+import ConfirmationModal from './modal/ConfirmationModal';
 import { CreateScaleResult } from '../../electron/preload/services/scale';
+import { differenceInCalendarMonths } from "date-fns";
+import { DownloadScaleButton } from './publish-button';
 
 export type ScaleShift = {
   dateStr: string;
   employee_name: string;
   employee_id: string;
   scaleType: "ETA" | "PLANTAO_TARDE";
+  id?: string;
 }
 
 const Scales: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [shifts, setShifts] = useState<ScaleShift[]>([]);
-
-  // IDs das escalas
   const [scaleIds, setScaleIds] = useState({ ETA: null, PLANTAO_TARDE: null });
+  const [holidays, setHolidays] = useState<{ [key: string]: string }>({});
 
-  // Controle do modal de edição
+  const isHoliday = (dateStr: string): { isHoliday: boolean; name?: string } => {
+    if (holidays[dateStr]) {
+      return { isHoliday: true, name: holidays[dateStr] };
+    }
+    return { isHoliday: false };
+  };
   const [editModal, setEditModal] = useState<{ isOpen: boolean; date: string | null }>({ isOpen: false, date: null });
-
-  // Trigger manual para recarregar dados
   const [refreshKey, setRefreshKey] = useState(0);
-
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Estado para drag-and-drop
+  const [draggedShift, setDraggedShift] = useState<ScaleShift | null>(null);
+  const [dragError, setDragError] = useState<string | null>(null);
+  const [validDropDates, setValidDropDates] = useState<Set<string>>(new Set());
+  const [dragConflictModal, setDragConflictModal] = useState<{
+    isOpen: boolean;
+    message: string;
+    pendingMove: any;
+  }>({
+    isOpen: false,
+    message: '',
+    pendingMove: null
+  });
 
   const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
@@ -40,11 +59,55 @@ const Scales: React.FC = () => {
         getScale({ month: monthString, type: 'PLANTAO_TARDE' })
       ]);
 
-      // Atualiza IDs
       setScaleIds({
         ETA: etaResult?.id || null,
         PLANTAO_TARDE: plantaoResult?.id || null
       });
+
+      // Processar feriados vindos do backend
+      console.log('=== DEBUG FERIADOS ===');
+      console.log('ETA Result completo:', JSON.stringify(etaResult, null, 2));
+      console.log('Plantao Result completo:', JSON.stringify(plantaoResult, null, 2));
+      console.log('ETA keys:', etaResult ? Object.keys(etaResult) : 'null');
+      console.log('Plantao keys:', plantaoResult ? Object.keys(plantaoResult) : 'null');
+      
+      const holidaysMap: { [key: string]: string } = {};
+      
+      // Tentar diferentes possíveis estruturas de dados
+      if (etaResult?.holidays && Array.isArray(etaResult.holidays)) {
+        console.log('✅ Feriados ETA encontrados:', etaResult.holidays);
+        etaResult.holidays.forEach((holiday: any) => {
+          console.log('Processando holiday ETA:', holiday);
+          const dateKey = holiday.date || holiday.holiday_date;
+          const name = holiday.name || holiday.holiday_name || 'Feriado';
+          if (dateKey) {
+            holidaysMap[dateKey] = name;
+            console.log(`Adicionado: ${dateKey} = ${name}`);
+          }
+        });
+      } else {
+        console.log('❌ ETA não tem holidays ou não é array:', etaResult?.holidays);
+      }
+      
+      if (plantaoResult?.holidays && Array.isArray(plantaoResult.holidays)) {
+        console.log('✅ Feriados PLANTAO encontrados:', plantaoResult.holidays);
+        plantaoResult.holidays.forEach((holiday: any) => {
+          console.log('Processando holiday PLANTAO:', holiday);
+          const dateKey = holiday.date || holiday.holiday_date;
+          const name = holiday.name || holiday.holiday_name || 'Feriado';
+          if (dateKey) {
+            holidaysMap[dateKey] = name;
+            console.log(`Adicionado: ${dateKey} = ${name}`);
+          }
+        });
+      } else {
+        console.log('❌ PLANTAO não tem holidays ou não é array:', plantaoResult?.holidays);
+      }
+      
+      console.log('Holidays Map final:', JSON.stringify(holidaysMap, null, 2));
+      console.log('Total de feriados:', Object.keys(holidaysMap).length);
+      console.log('=== FIM DEBUG ===');
+      setHolidays(holidaysMap);
 
       const hasRealData =
         (etaResult?.shifts?.length ?? 0) > 0 ||
@@ -54,7 +117,7 @@ const Scales: React.FC = () => {
         const allShifts: ScaleShift[] = [];
 
         type DatabaseShift = {
-          date: string; // yyyy-MM-dd
+          date: string;
           employee_function: string;
           employee_id: string;
           employee_name: string;
@@ -66,7 +129,8 @@ const Scales: React.FC = () => {
             dateStr: dbShift.date,
             employee_name: dbShift.employee_name,
             employee_id: dbShift.employee_id,
-            scaleType: "ETA" as const
+            scaleType: "ETA" as const,
+            id: dbShift.id
           }))
         );
         allShifts.push(
@@ -74,7 +138,8 @@ const Scales: React.FC = () => {
             dateStr: dbShift.date,
             employee_name: dbShift.employee_name,
             employee_id: dbShift.employee_id,
-            scaleType: "PLANTAO_TARDE" as const
+            scaleType: "PLANTAO_TARDE" as const,
+            id: dbShift.id
           }))
         );
 
@@ -82,35 +147,27 @@ const Scales: React.FC = () => {
       }
     } catch (error) {
       console.error("Erro ao buscar escala:", error);
-      // Se der erro no fetch, não necessariamente devemos limpar shifts (modo teste)
       setScaleIds({ ETA: null, PLANTAO_TARDE: null });
     }
   };
 
-  // ------ BUSCA ESCALAS QUANDO MÊS MUDA OU REFRESH É SOLICITADO ------
   useEffect(() => {
     fetchScale();
   }, [currentDate, refreshKey]);
 
-  // ------ Trocar Mês ------
   const changeMonth = (delta: number) => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + delta, 1));
   };
 
-  // ------ Abrir modal ao clicar no dia ------
   const handleDayClick = (dateStr: string) => {
     setEditModal({ isOpen: true, date: dateStr });
   };
 
-  // ------ Recebe resultado da CRIAÇÃO da escala ------
   const handleCreateScale = async (result: CreateScaleResult) => {
     try {
       if (!result.success) {
         return alert(result.errorMessage);
       }
-
-      // setShifts(result.shifts);
-      console.log(result.shifts);
       await fetchScale();
     } catch (error) {
       console.error("Erro ao criar escala:", error);
@@ -118,7 +175,141 @@ const Scales: React.FC = () => {
     }
   };
 
-  // ------ Renderizar dias do calendário ------
+  // Verifica se um funcionário já tem alocação na data alvo (colisão)
+  const hasCollision = (employeeId: string, targetDate: string, sourceDate: string): boolean => {
+    return shifts.some(shift =>
+      shift.employee_id === employeeId &&
+      shift.dateStr === targetDate &&
+      shift.dateStr !== sourceDate // Não considerar a própria alocação
+    );
+  };
+
+  // Calcula datas válidas para drop (sem colisão)
+  const calculateValidDropDates = (shift: ScaleShift): Set<string> => {
+    const validDates = new Set<string>();
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const formatDateStr = (y: number, m: number, d: number) => {
+      const mm = String(m + 1).padStart(2, '0');
+      const dd = String(d).padStart(2, '0');
+      return `${y}-${mm}-${dd}`;
+    };
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = formatDateStr(year, month, day);
+      if (!hasCollision(shift.employee_id, dateStr, shift.dateStr)) {
+        validDates.add(dateStr);
+      }
+    }
+
+    return validDates;
+  };
+
+  // Handler para iniciar drag
+  const handleDragStart = (e: React.DragEvent, shift: ScaleShift) => {
+    e.stopPropagation();
+    setDraggedShift(shift);
+    setDragError(null);
+    const validDates = calculateValidDropDates(shift);
+    setValidDropDates(validDates);
+  };
+
+  // Handler para drag over (permite drop)
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  // Handler para drop em dia
+  const handleDropOnDay = async (e: React.DragEvent, targetDate: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!draggedShift) return;
+
+    const moveParams = {
+      scaleId: scaleIds[draggedShift.scaleType],
+      scaleType: draggedShift.scaleType,
+      employeeId: draggedShift.employee_id,
+      oldDate: draggedShift.dateStr,
+      newDate: targetDate,
+      force: false
+    };
+
+    try {
+      const result = await moveShiftDragDrop(moveParams);
+
+      // CASO A: Backend pede confirmação
+      if (!result.success && result.requireConfirmation) {
+        setDragConflictModal({
+          isOpen: true,
+          message: `Conflito detectado:\n${result.error}\n\nDeseja forçar a realocação?`,
+          pendingMove: { ...moveParams, force: true }
+        });
+        setDraggedShift(null);
+        setValidDropDates(new Set());
+        return;
+      }
+
+      // CASO B: Erro real (sem possibilidade de forçar)
+      if (!result.success) {
+        setDragError(result.error || 'Erro ao mover shift');
+        setDraggedShift(null);
+        setValidDropDates(new Set());
+        return;
+      }
+
+      // CASO C: Sucesso
+      const updatedShifts = shifts.map(shift =>
+        shift.id === draggedShift.id || (shift.employee_id === draggedShift.employee_id && shift.dateStr === draggedShift.dateStr)
+          ? { ...shift, dateStr: targetDate }
+          : shift
+      );
+
+      setShifts(updatedShifts);
+      setDraggedShift(null);
+      setValidDropDates(new Set());
+      setDragError(null);
+
+      await fetchScale();
+    } catch (error) {
+      console.error('Erro ao salvar shift:', error);
+      setDragError('Erro ao salvar mudança. Tente novamente.');
+      setDraggedShift(null);
+      setValidDropDates(new Set());
+    }
+  };
+  // Handler para forçar movimento após confirmação
+  const handleForceMove = async () => {
+    if (!dragConflictModal.pendingMove) return;
+
+    try {
+      const result = await moveShiftDragDrop(dragConflictModal.pendingMove);
+
+      if (result.success) {
+        await fetchScale();
+        setDragConflictModal({ isOpen: false, message: '', pendingMove: null });
+      } else {
+        alert('Erro ao forçar mudança: ' + result.error);
+      }
+    } catch (error) {
+      alert('Erro inesperado ao forçar mudança.');
+    }
+  };
+
+  // Handler para sair do drag
+  const handleDragLeave = () => {
+    // Opcional: você pode adicionar lógica aqui
+  };
+
+  // Handler para finalizar drag sem drop
+  const handleDragEnd = () => {
+    setDraggedShift(null);
+    setValidDropDates(new Set());
+  };
+
   const renderCalendarDays = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -135,7 +326,6 @@ const Scales: React.FC = () => {
 
     const cells: any[] = [];
 
-    // Dias do mês anterior
     const prevMonthDays = new Date(year, month, 0).getDate();
     for (let i = startDayIndex; i > 0; i--) {
       const dayNum = prevMonthDays - i + 1;
@@ -147,7 +337,6 @@ const Scales: React.FC = () => {
       });
     }
 
-    // Dias do mês atual
     for (let day = 1; day <= daysInMonth; day++) {
       cells.push({
         dateStr: formatDateStr(year, month, day),
@@ -156,7 +345,6 @@ const Scales: React.FC = () => {
       });
     }
 
-    // Preenche final
     const totalNeeded = startDayIndex + daysInMonth;
     const target = totalNeeded > 35 ? 42 : 35;
     const toAdd = target - cells.length;
@@ -170,7 +358,6 @@ const Scales: React.FC = () => {
       });
     }
 
-    // Elementos JSX
     const elements = cells.map((cell, idx) => {
       const todayStr = formatDateStr(
         new Date().getFullYear(),
@@ -179,26 +366,39 @@ const Scales: React.FC = () => {
       );
 
       const isToday = cell.dateStr === todayStr;
-
+      const isValidDropTarget = validDropDates.has(cell.dateStr);
       const dailyShifts = shifts.filter(s => s.dateStr === cell.dateStr);
+      const holidayInfo = isHoliday(cell.dateStr);
 
       return (
         <div
           key={idx}
-          className={`day-cell ${!cell.isCurrentMonth ? 'inactive' : ''} ${isToday ? 'today' : ''}`}
+          className={`day-cell ${!cell.isCurrentMonth ? 'inactive' : ''} ${isToday ? 'today' : ''} ${isValidDropTarget && draggedShift ? 'valid-drop-target' : ''} ${holidayInfo.isHoliday && cell.isCurrentMonth ? 'holiday' : ''}`}
           onClick={() => handleDayClick(cell.dateStr)}
+          onDragOver={handleDragOver}
+          onDrop={(e) => handleDropOnDay(e, cell.dateStr)}
+          onDragLeave={handleDragLeave}
+          title={holidayInfo.isHoliday ? holidayInfo.name : ''}
         >
-          <div className="day-number">{cell.day}</div>
+          <div className="day-number">
+            {cell.day}
+          </div>
           <div className="day-events">
             {dailyShifts.map((shift, i) => {
               const backgroundColor = shift.scaleType === 'ETA' ? '#FFE599' : '#6FA8DC';
               const textColor = shift.scaleType === 'ETA' ? '#000' : '#fff';
+              const isDragging = draggedShift?.id === shift.id ||
+                (draggedShift?.employee_id === shift.employee_id &&
+                  draggedShift?.dateStr === shift.dateStr);
 
               return (
                 <div
                   key={i}
-                  className="event-block"
-                  style={{ backgroundColor, color: textColor }}
+                  className={`event-block ${isDragging ? 'dragging' : ''}`}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, shift)}
+                  onDragEnd={handleDragEnd}
+                  style={{ backgroundColor, color: textColor, cursor: 'grab' }}
                   title={`${shift.employee_name} - ${shift.scaleType}`}
                 >
                   {shift.employee_name}
@@ -210,7 +410,6 @@ const Scales: React.FC = () => {
       );
     });
 
-    // Quebrar em semanas
     const rows = [];
     for (let i = 0; i < elements.length; i += 7) {
       rows.push(
@@ -222,6 +421,9 @@ const Scales: React.FC = () => {
 
     return rows;
   };
+
+  const monthDiff = differenceInCalendarMonths(new Date(), currentDate);
+  const ableToCreate = monthDiff <= 0 && monthDiff >= -1;
 
   const monthStr = currentDate.toLocaleDateString('pt-BR', { month: 'long' });
   const monthCap = monthStr.charAt(0).toUpperCase() + monthStr.slice(1);
@@ -241,11 +443,28 @@ const Scales: React.FC = () => {
         </div>
 
         <div className="action-buttons">
-          <button className="btn-action primary" onClick={() => setIsCreateModalOpen(true)} disabled={!!scaleIds.ETA || !!scaleIds.PLANTAO_TARDE}>
+          <DownloadScaleButton
+            scaleDate={currentDate}
+            shifts={shifts}
+            disabled={!scaleIds.ETA || !scaleIds.PLANTAO_TARDE || !ableToCreate}
+          />
+
+          <button
+            className="btn-action primary"
+            onClick={() => setIsCreateModalOpen(true)}
+            disabled={!!scaleIds.ETA || !!scaleIds.PLANTAO_TARDE || !ableToCreate}
+          >
             CRIAR ESCALA
           </button>
         </div>
       </div>
+
+      {/* Mensagem de erro de colisão */}
+      {dragError && (
+        <div className="drag-error-message">
+          ⚠️ {dragError}
+        </div>
+      )}
 
       <div className="calendar-grid-container">
         <div className="weekdays-header">
@@ -254,7 +473,6 @@ const Scales: React.FC = () => {
         <div className="days-grid">{renderCalendarDays()}</div>
       </div>
 
-      {/* Modal Criar Escala */}
       <CreateScaleModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
@@ -263,13 +481,22 @@ const Scales: React.FC = () => {
         year={currentDate.getFullYear()}
       />
 
-      {/* Modal Editar Manualmente */}
       <EditManualModal
         isOpen={editModal.isOpen}
         date={editModal.date}
         scaleIds={scaleIds}
         onClose={() => setEditModal({ isOpen: false, date: null })}
-        onComplete={() => setRefreshKey(old => old + 1)} // Recarregar após salvar
+        onComplete={() => setRefreshKey(old => old + 1)}
+      />
+
+      <ConfirmationModal
+        isOpen={dragConflictModal.isOpen}
+        onClose={() => setDragConflictModal({ isOpen: false, message: '', pendingMove: null })}
+        onConfirm={handleForceMove}
+        title="Restrição de Escala"
+        message={dragConflictModal.message}
+        confirmText="FORÇAR MUDANÇA"
+        cancelText="CANCELAR"
       />
     </div>
   );

@@ -29,3 +29,11 @@ export const updateManualShifts = async (params) => {
   return await window.ipcRenderer.invoke('update-manual-shifts', params);
 };
 
+/**
+ * Move um turno de uma data para outra via drag-and-drop.
+ * @param {Object} params - { scaleId, scaleType, employeeId, oldDate, newDate, force }
+ */
+export const moveShiftDragDrop = async (params) => {
+  return await window.ipcRenderer.invoke('move-shift-drag-drop', params);
+};
+

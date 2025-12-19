@@ -20,7 +20,8 @@ function FuncionarioModal({ isOpen, onClose, initialMode, employee, handleCreate
     // --- Estados para os campos do formulário ---
     const [nome, setNome] = useState('');
     const [cargo, setCargo] = useState('');
-    const [telefone, setTelefone] = useState('');
+    const [email, setEmail] = useState('');
+    const [emailError, setEmailError] = useState('');
     const [restricoes, setRestricoes] = useState([]);
     const [disponibilidade, setDisponibilidade] = useState([]);
 
@@ -45,7 +46,7 @@ function FuncionarioModal({ isOpen, onClose, initialMode, employee, handleCreate
             // Se for 'edit' ou 'view', preenche os estados com os dados
             setNome(employee.name || '');
             setCargo(employee.function || '');
-            setTelefone(employee.cellphone || '');
+            setEmail(employee.email || '');
 
             const currentRestrictionsOptions = employee.restrictions?.split(',') ?? [];
             setRestricoes(
@@ -60,7 +61,8 @@ function FuncionarioModal({ isOpen, onClose, initialMode, employee, handleCreate
             // Se for 'create' (ou se fechar), limpa tudo
             setNome('');
             setCargo('');
-            setTelefone('');
+            setEmail('');
+            setEmailError('');
             setCargo('Operador da ETA')
             setRestricoes([]);
             setDisponibilidade([]);
@@ -77,10 +79,16 @@ function FuncionarioModal({ isOpen, onClose, initialMode, employee, handleCreate
     // --- PASSO 2.4: Atualizado para usar 'currentMode' ---
     const handleSubmit = (e) => {
         e.preventDefault();
+        
+        // Validar email antes de submeter
+        if (emailError || !email) {
+            return alert("Por favor, insira um email válido.");
+        }
+        
         const payload = {
             name: nome,
             function: cargo,
-            cellphone: telefone,
+            email: email,
             availabilities: disponibilidade.map(item => item.value),
             restrictions: restricoes.map(item => item.value)
         };
@@ -201,16 +209,27 @@ function FuncionarioModal({ isOpen, onClose, initialMode, employee, handleCreate
                         <div className="form-group">
                             <input
                                 type="tel"
-                                id="telefone"
-                                placeholder="Insira um número de telefone"
+                                id="email"
+                                placeholder="Insira um email"
                                 required={!isDisabled}
                                 disabled={isDisabled}
-                                value={telefone}
+                                value={email}
+                                className={emailError ? 'input-error' : ''}
                                 onChange={(e) => {
-                                    setTelefone(maskPhone(e.target.value))
+                                    const value = e.target.value;
+                                    setEmail(value);
+                                    
+                                    // Validação de email
+                                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                    if (value && !emailRegex.test(value)) {
+                                        setEmailError('Email inválido');
+                                    } else {
+                                        setEmailError('');
+                                    }
                                 }}
                             />
-                            <label htmlFor="telefone">Telefone/Celular</label>
+                            <label htmlFor="email">Email</label>
+                            {emailError && <span className="error-message">{emailError}</span>}
                         </div>
 
                         {/* --- Campo de Restrições --- */}

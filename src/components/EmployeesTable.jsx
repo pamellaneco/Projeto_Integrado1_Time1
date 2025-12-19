@@ -189,7 +189,7 @@ function EmployeesTable() {
               <tr>
                 <th><strong>Nome Completo</strong></th>
                 <th><strong>Cargo/Função</strong></th>
-                <th><strong>Celular</strong></th>
+                <th><strong>Email</strong></th>
                 {/* Coluna "Ações" removida para bater com o Figma */}
               </tr>
             </thead>
@@ -199,7 +199,7 @@ function EmployeesTable() {
                   <tr key={emp.id} className="clickable-row" onClick={() => openViewModal(emp)}>
                     <td data-label="Nome Completo">{emp.name}</td>
                     <td data-label="Cargo/Função">{emp.function}</td>
-                    <td data-label="Celular">{emp.cellphone || '—'}</td>
+                    <td data-label="Email">{emp.email || '—'}</td>
                     {/* Coluna "Ações" removida */}
                   </tr>
                 ))
