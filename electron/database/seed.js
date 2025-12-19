@@ -107,30 +107,6 @@ export const seedDB = (db) => {
 
     console.log("Database seeded with 12 test employees.");
 
-    const scaleIdETA = v4();
-    const scaleIdTarde = v4();
-    const mesTeste = "2025-11";
-
-    const stmtScale = db.prepare(`
-      INSERT INTO scales (id, month, type, status) 
-      VALUES (?, ?, ?, ?)
-    `);
-
-    stmtScale.run(scaleIdETA, mesTeste, "ETA", "RASCUNHO");
-    stmtScale.run(scaleIdTarde, mesTeste, "PLANTAO_TARDE", "RASCUNHO");
-
-    const stmtShift = db.prepare(`
-      INSERT INTO scale_shifts (id, scale_id, employee_id, date) 
-      VALUES (?, ?, ?, ?)
-    `);
-
-    stmtShift.run(v4(), scaleIdETA, employee1Id, `${mesTeste}-01`);
-
-    stmtShift.run(v4(), scaleIdETA, employee1Id, `${mesTeste}-05`);
-    stmtShift.run(v4(), scaleIdTarde, employee2Id, `${mesTeste}-05`);
-
-    stmtShift.run(v4(), scaleIdTarde, employee2Id, `${mesTeste}-10`);
-
     console.log("Seed complete.");
 
   } catch (error) {

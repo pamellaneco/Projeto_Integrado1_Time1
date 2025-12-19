@@ -31,7 +31,6 @@ export class EmployeeRepository {
           e.id,
           e.name,
           e."function",
-          e.cellphone,
           e.email,
           (
             SELECT GROUP_CONCAT(r.type)
@@ -73,7 +72,6 @@ export class EmployeeRepository {
           e.id,
           e.name,
           e."function",
-          e.cellphone,
           e.email,
           (
             SELECT GROUP_CONCAT(r.type)
@@ -135,7 +133,7 @@ export class EmployeeRepository {
         ${selectClause}
         ${joinClause}
         ${whereClause}
-        GROUP BY e.id, e.name, e."function", e.cellphone, e.email
+        GROUP BY e.id, e.name, e."function", e.email
         ORDER BY e.name
       `);
 
@@ -151,7 +149,7 @@ export class EmployeeRepository {
 
   create(payload) {
     return this.db.transaction(() => {
-      const userInsert = this.db.prepare("INSERT INTO employees (id, name, function, cellphone, email) VALUES (@id, @name, @function, @cellphone, @email)");
+      const userInsert = this.db.prepare("INSERT INTO employees (id, name, function, email) VALUES (@id, @name, @function, @email)");
 
       const insertAvailability = this.db.prepare(
         "INSERT INTO employee_availabilities (id, employee_id, type) VALUES (@id, @employeeId, @type)"
@@ -167,7 +165,6 @@ export class EmployeeRepository {
         id: employeeId,
         name: payload.name,
         function: payload.function,
-        cellphone: payload.cellphone,
         email: payload.email,
       });
 
@@ -193,7 +190,7 @@ export class EmployeeRepository {
 
   update(payload) {
     this.db.transaction(() => {
-      const userUpdate = this.db.prepare("UPDATE employees SET name=@name, function=@function, cellphone=@cellphone, email=@email WHERE id=@id");
+      const userUpdate = this.db.prepare("UPDATE employees SET name=@name, function=@function, email=@email WHERE id=@id");
 
       const employeeId = payload.id;
 
@@ -201,7 +198,6 @@ export class EmployeeRepository {
         id: employeeId,
         name: payload.name,
         function: payload.function,
-        cellphone: payload.cellphone,
         email: payload.email,
       });
 
