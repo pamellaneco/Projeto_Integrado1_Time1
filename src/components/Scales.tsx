@@ -117,16 +117,17 @@ const Scales: React.FC = () => {
         const allShifts: ScaleShift[] = [];
 
         type DatabaseShift = {
-          date: string;
+          dateStr: string;
           employee_function: string;
           employee_id: string;
           employee_name: string;
           id: string;
+          scaleType?: string;
         }
 
         allShifts.push(
           ...(etaResult.shifts as DatabaseShift[]).map(dbShift => ({
-            dateStr: dbShift.date,
+            dateStr: dbShift.dateStr,
             employee_name: dbShift.employee_name,
             employee_id: dbShift.employee_id,
             scaleType: "ETA" as const,
@@ -135,7 +136,7 @@ const Scales: React.FC = () => {
         );
         allShifts.push(
           ...(plantaoResult.shifts as DatabaseShift[]).map(dbShift => ({
-            dateStr: dbShift.date,
+            dateStr: dbShift.dateStr,
             employee_name: dbShift.employee_name,
             employee_id: dbShift.employee_id,
             scaleType: "PLANTAO_TARDE" as const,
@@ -394,11 +395,11 @@ const Scales: React.FC = () => {
               return (
                 <div
                   key={i}
-                  className={`event-block ${isDragging ? 'dragging' : ''}`}
+                  className={`event-block ${shift.scaleType === 'ETA' ? 'yellow' : 'blue'} ${isDragging ? 'dragging' : ''}`}
                   draggable
                   onDragStart={(e) => handleDragStart(e, shift)}
                   onDragEnd={handleDragEnd}
-                  style={{ backgroundColor, color: textColor, cursor: 'grab' }}
+                  style={{ color: textColor, cursor: 'grab' }}
                   title={`${shift.employee_name} - ${shift.scaleType}`}
                 >
                   {shift.employee_name}

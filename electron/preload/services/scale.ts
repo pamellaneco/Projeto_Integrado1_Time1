@@ -366,6 +366,83 @@ export class ScaleService {
       return null; // Em caso de erro técnico, deixamos passar (ou lance erro se preferir rigor)
     }
   }
+
+  createSobreaviso(params: any) {
+    try {
+      console.log('=== SERVICE: createSobreaviso ===');
+      console.log('Params recebidos:', params);
+      
+      const { month, year, employeeIds } = createSobreavisoSchema.parse(params);
+      
+      console.log('Após parse - month:', month, 'year:', year);
+      console.log('EmployeeIds ETA:', employeeIds.ETA);
+      console.log('EmployeeIds PLANTAO_TARDE:', employeeIds.PLANTAO_TARDE);
+
+      // Calcular o range de datas do mês
+      const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+      const lastDay = new Date(year, month, 0).getDate();
+      const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+
+      console.log('Range de datas:', startDate, 'até', endDate);
+
+      // Limpar sobreavisos existentes para o mesmo período
+      this.repository.deleteSobreavisosByDateRange(startDate, endDate);
+
+      // Criar novos sobreavisos
+      const sobreavisos = [];
+
+      // Adicionar ETA
+      for (const employee of employeeIds.ETA) {
+        sobreavisos.push({
+          id: randomUUID(),
+          employee_id: employee.id,
+          scale_type: 'ETA',
+          start_date: startDate,
+          end_date: endDate
+        });
+      }
+
+      // Adicionar PLANTAO_TARDE
+      for (const employee of employeeIds.PLANTAO_TARDE) {
+        sobreavisos.push({
+          id: randomUUID(),
+          employee_id: employee.id,
+          scale_type: 'PLANTAO_TARDE',
+          start_date: startDate,
+          end_date: endDate
+        });
+      }
+
+      console.log('Total de sobreavisos a criar:', sobreavisos.length);
+      console.log('Sobreavisos:', sobreavisos);
+
+      if (sobreavisos.length > 0) {
+        this.repository.createMultipleSobreavisos(sobreavisos);
+      }
+
+      return {
+        success: true,
+        message: 'Sobreavisos criados com sucesso',
+        count: sobreavisos.length
+      };
+
+    } catch (err) {
+      console.error('Erro em createSobreaviso:', err);
+      if (err instanceof ZodError) {
+        throw new Error(`Erro de validação dos dados: ${err.message}`);
+      }
+      throw err;
+    }
+  }
+
+  getSobreavisosByDate(date: string) {
+    try {
+      return this.repository.findSobreavisosByDate(date);
+    } catch (error) {
+      console.error("Erro ao buscar sobreavisos:", error);
+      throw error;
+    }
+  }
 }
 
 const getScaleSchema = z.object({
@@ -405,5 +482,15 @@ const updateManualShiftsSchema = z.object({
   force: z.boolean().optional().default(false)
 });
 
-
-
+const createSobreavisoSchema = z.object({
+  month: z.number().min(1).max(12),
+  year: z.number(),
+  employeeIds: z.object({
+    ETA: z.array(z.object({
+      id: z.string()
+    })),
+    PLANTAO_TARDE: z.array(z.object({
+      id: z.string()
+    }))
+  })
+});

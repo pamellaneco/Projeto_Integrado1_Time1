@@ -37,3 +37,19 @@ export const moveShiftDragDrop = async (params) => {
   return await window.ipcRenderer.invoke('move-shift-drag-drop', params);
 };
 
+/**
+ * Cria sobreavisos para funcionários em um determinado mês.
+ * @param {Object} params - { month, year, employeeIds: { ETA: [], PLANTAO_TARDE: [] } }
+ */
+export const createSobreaviso = async (params) => {
+  return await window.ipcRenderer.invoke('create-sobreaviso', params);
+};
+
+/**
+ * Busca sobreavisos para uma data específica.
+ * @param {string} date - Data no formato YYYY-MM-DD
+ */
+export const getSobreavisosByDate = async (date) => {
+  return await window.ipcRenderer.invoke('get-sobreavisos-by-date', date);
+};
+

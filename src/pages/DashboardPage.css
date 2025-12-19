@@ -1,0 +1,348 @@
+/* Dashboard Page */
+.dashboard-page {
+  padding: 32px;
+  background-color: #FFFFFF;
+  min-height: 100%;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 16px;
+}
+
+/* Section Styles */
+.today-scale-section {
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 32px;
+}
+
+.section-header-with-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1D2B33;
+  margin: 0;
+}
+
+.btn-sobreaviso {
+  background-color: #3A5566;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-sobreaviso:hover {
+  opacity: 0.9;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 16px;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+/* Table Styles */
+.today-scale-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+.today-scale-table thead {
+  background-color: #FFFFFF;
+}
+
+.today-scale-table thead th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 700;
+  color: #1D2B33;
+  border-bottom: 2px solid #e9ecef;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.today-scale-table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.15s ease;
+}
+
+.today-scale-table tbody tr.clickable-row {
+  cursor: pointer;
+}
+
+.today-scale-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.today-scale-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.today-scale-table tbody td {
+  padding: 16px;
+  color: #333333;
+  vertical-align: middle;
+}
+
+/* Shift Label with colored indicator */
+.shift-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.shift-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.indicator-eta {
+  background-color: #F5C518;
+}
+
+.indicator-tarde {
+  background-color: #5B9BD5;
+}
+
+/* Status Indicator */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #000000;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-indicator.working .status-dot {
+  background-color: #198754;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-indicator.alert .status-dot {
+  background-color: #DC3545;
+}
+
+.status-indicator.sobreaviso .status-dot {
+  background-color: #DC3545;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-page {
+    padding: 16px;
+  }
+
+  .today-scale-section {
+    padding: 16px;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+
+  .today-scale-table {
+    font-size: 12px;
+  }
+
+  .today-scale-table thead th,
+  .today-scale-table tbody td {
+    padding: 12px 8px;
+  }
+}
+
+/* Weekly Scale Section */
+.weekly-scale-section {
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 32px;
+}
+
+.weekly-scale-section .section-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1D2B33;
+  margin: 0 0 20px 0;
+}
+
+.week-range {
+  font-weight: 400;
+  color: #1D2B33;
+  opacity: 0.95;
+  margin-left: 8px;
+}
+
+.weekly-scale-section .calendar-grid-container {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.weekly-scale-section .weekdays-header {
+  display: flex;
+  width: 100%;
+  gap: 0;
+  margin-top: 0;
+}
+
+.weekly-scale-section .weekday {
+  padding: 10px 6px;
+  background: transparent;
+  text-align: center;
+  font-weight: 600;
+  border-bottom: 1px solid transparent;
+  flex: 1 0;
+  font-size: 16px;
+  color: #1D2B33;
+}
+
+.calendar-week-row {
+  display: flex;
+  gap: 0;
+  width: 100%;
+  padding: 10px;
+}
+
+.weekly-scale-section .day-cell {
+  flex: 1 0;
+  min-height: 120px;
+  border-right: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  padding: 8px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #FFFFFF;
+}
+
+.weekly-scale-section .day-cell:last-child {
+  border-right: none;
+}
+
+.weekly-scale-section .day-number {
+  font-size: 16px;
+  color: #1D2B33;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 6px 0 10px 0;
+}
+
+.weekly-scale-section .day-cell.today {
+  justify-content: flex-start;
+}
+
+.weekly-scale-section .today .day-number {
+  background-color: #1D2B33;
+  color: #ffffff;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+  margin: 6px auto 10px auto;
+  transform: none;
+  box-shadow: none;
+}
+
+.weekly-scale-section .day-cell.holiday .day-number {
+  color: #d9534f;
+  font-weight: bold;
+}
+
+.shifts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  align-items: stretch;
+}
+
+.shift-card {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.shift-card:hover {
+  opacity: 0.85;
+}
+
+.shift-card.eta {
+  background: #FFE599;
+  color: #000000;
+}
+
+.shift-card.plantao {
+  background: #6FA8DC;
+  color: #000000;
+}

@@ -187,11 +187,12 @@
   padding: 0 24px;
   border-radius: 6px;
   font-size: 14px;
-  font-weight: 500;
-  /* Um pouco mais leve */
+  font-weight: 700;
+  /* Negrito para o texto do botão */
   cursor: pointer;
   border: 1px solid transparent;
   transition: all 0.2s ease;
+  text-transform: uppercase;
 }
 
 .btn-primary {

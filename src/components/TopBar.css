@@ -9,7 +9,7 @@
   /* <-- MUDANÇA CRÍTICA: Alinha os itens nas pontas */
   align-items: center;
   /* ALTERAÇÃO 1: Aumentado o padding horizontal para alinhar com o conteúdo */
-  padding: 22px 30px;
+  padding: 22px 50px;
   width: 100%;
 }
 
@@ -23,6 +23,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-right: 20px;
 }
 
 .user-avatar {

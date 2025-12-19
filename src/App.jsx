@@ -4,6 +4,7 @@ import React from 'react';
 import DashboardLayout from './components/DashboardLayout';
 import EmployeesTable from './components/EmployeesTable';
 import ScalesPage from './pages/ScalesPage';
+import DashboardPage from './pages/DashboardPage';
 
 // Roteamento mínimo dentro do Dashboard: mostra a página correta
 // quando o usuário está no dashboard (hashs: #/dashboard, #/funcionarios, #/escalas)
@@ -16,9 +17,9 @@ function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
-  let Page = <EmployeesTable />;
+  let Page = <DashboardPage />;
   if (hash === '#/escalas') Page = <ScalesPage />;
-  if (hash === '#/dashboard' || hash === '#/inicio') Page = <EmployeesTable />;
+  if (hash === '#/dashboard' || hash === '#/inicio') Page = <DashboardPage />;
   if (hash === '#/funcionarios') Page = <EmployeesTable />;
 
   return (

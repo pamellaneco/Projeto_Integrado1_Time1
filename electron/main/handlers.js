@@ -146,3 +146,19 @@ ipcMain.handle('update-manual-shifts', async (_, params) => {
     return { error: err?.message ?? String(err) };
   }
 });
+
+ipcMain.handle('create-sobreaviso', async (_, params) => {
+  try {
+    return scaleService.createSobreaviso(params);
+  } catch (err) {
+    return { error: err?.message ?? String(err) };
+  }
+});
+
+ipcMain.handle('get-sobreavisos-by-date', async (_, date) => {
+  try {
+    return scaleService.getSobreavisosByDate(date);
+  } catch (err) {
+    return { error: err?.message ?? String(err) };
+  }
+});

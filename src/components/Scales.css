@@ -195,8 +195,8 @@
     /* usar flex column para permitir centralizar apenas o dia atual */
     display: flex;
     flex-direction: column;
-    align-items: center;
-    /* centraliza horizontalmente o conteúdo por padrão */
+    align-items: flex-start;
+    /* alinha horizontalmente ao início */
     justify-content: flex-start;
     /* alinhamento vertical padrão (top) */
 }
@@ -205,13 +205,9 @@
     font-size: 16px;
     /* conforme protótipo */
     color: #1D2B33;
-    /* Centraliza horizontalmente o número dentro da célula */
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
     /* número próximo ao topo, como no protótipo */
     margin: 6px 0;
+    align-self: center;
 }
 
 .day-cell.holiday .day-number {
@@ -223,28 +219,40 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    width: 100%;
+    align-self: stretch;
 }
 
 .event-block {
     padding: 6px 8px;
     border-radius: 6px;
     font-size: 10px;
-    /* conforme protótipo */
     background: #e9ecef;
-    color: #1D2B33;
-    /* nome do funcionário */
+    color: #000000 !important;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .event-block.yellow {
-    background: #FFE599;
-    color: #1D2B33;
+    background: #FFE599 !important;
+    color: #000000 !important;
     border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+.event-block.yellow:hover {
+    background: #FFF2CC !important;
+}
+
 .event-block.blue {
-    background: #6FA8DC;
-    color: #1D2B33;
+    background: #6FA8DC !important;
+    color: #000000 !important;
     border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.event-block.blue:hover {
+    background: #9FC5E8 !important;
 }
 
 .inactive {
@@ -254,7 +262,7 @@
 
 .today {
     /* Removido destaque em outline para evitar a marcação visível em coluna/linha. */
-    outline: none;
+    
 }
 
 /* Centraliza verticalmente o conteúdo da célula quando for o dia atual */
@@ -269,10 +277,9 @@
     /* cor de fundo conforme protótipo */
     color: #ffffff;
     /* número em branco */
-    width: 30px;
-    /* compacto */
-    height: 30px;
-    display: inline-flex;
+   width: 25px;
+   height: 25px;
+    display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
@@ -282,15 +289,12 @@
     /* reduzido para manter proporção */
     line-height: 1;
     /* centraliza horizontalmente e mantém alinhamento vertical com os demais dias */
-    margin: 6px auto;
-    transform: none;
-    box-shadow: none;
+    margin: 6px 0;
+    align-self: center;
 }
 
 /* Se o número do dia estiver em uma linha própria, garante espaço para eventos abaixo */
-.today .day-events {
-    margin-top: 10px;
-}
+
 
 /* Action buttons (BAIXAR, PUBLICAR) */
 .btn-action {

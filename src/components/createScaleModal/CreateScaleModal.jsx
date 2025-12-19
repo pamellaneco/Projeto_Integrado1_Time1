@@ -3,7 +3,7 @@ import { findEligibleEmployees } from '../../ipc-bridge/employee';
 import { createScale } from '../../ipc-bridge/scale';
 import './CreateScaleModal.css';
 
-function CreateScaleModal({ isOpen, onClose, onSubmit, month, year }) {
+function CreateScaleModal({ isOpen, onClose, onSubmit, month, year, skipHolidays = false, preSelectedETA = [], preSelectedPlantao = [] }) {
     const [step, setStep] = useState(1);
     const [selectedType, setSelectedType] = useState('PLANTAO_TARDE');
 
@@ -27,23 +27,14 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year }) {
 
             setEmployees(employees);
 
-            const etaEmployees = [];
-            const plantaoEmployees = [];
-
-            for (const employee of employees) {
-                const availabilities = employee.availabilities.split(',');
-
-                if (availabilities.includes('ETA')) {
-                    etaEmployees.push(employee);
-                }
-
-                if (availabilities.includes('PLANTAO_TARDE')) {
-                    plantaoEmployees.push(employee);
-                }
+            // Usar funcionários pré-selecionados se fornecidos
+            if (preSelectedETA.length > 0 || preSelectedPlantao.length > 0) {
+                setSelectedEmployeesETA(preSelectedETA);
+                setSelectedEmployeesPlantao(preSelectedPlantao);
+            } else {
+                setSelectedEmployeesETA([]);
+                setSelectedEmployeesPlantao([]);
             }
-
-            setSelectedEmployeesETA(etaEmployees);
-            setSelectedEmployeesPlantao(plantaoEmployees);
         } catch (error) {
             console.error('Erro ao carregar funcionários:', error);
             setEmployees([]);
@@ -76,12 +67,16 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year }) {
 
     const handleNext = () => {
         if (step === 1) {
-            // Verificar se há funcionários selecionados em ambas as escalas
-            if (selectedEmployeesETA.length === 0 || selectedEmployeesPlantao.length === 0) {
+            // Verificar se há funcionários selecionados em ambas as escalas (apenas se não for sobreaviso)
+            if (!skipHolidays && (selectedEmployeesETA.length === 0 || selectedEmployeesPlantao.length === 0)) {
                 alert('Selecione pelo menos um funcionário em cada escala (ETA e Plantão da Tarde).');
                 return;
             }
-            setStep(2);
+            if (skipHolidays) {
+                handleFinish();
+            } else {
+                setStep(2);
+            }
         }
     };
 
@@ -102,6 +97,13 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year }) {
                 },
                 holidays: selectedHolidays
             };
+
+            // Se skipHolidays for true, apenas retorna o payload sem chamar createScale
+            if (skipHolidays) {
+                onSubmit(payload);
+                onClose();
+                return;
+            }
 
             const result = await createScale(payload);
 
@@ -251,7 +253,7 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year }) {
                                 ANTERIOR
                             </button>
                             <button className="btn-nav btn-next-step1" onClick={handleNext}>
-                                PRÓXIMO
+                                {skipHolidays ? 'CONCLUIR' : 'PRÓXIMO'}
                             </button>
                         </div>
                     </>
