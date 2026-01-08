@@ -53,3 +53,11 @@ export const getSobreavisosByDate = async (date) => {
   return await window.ipcRenderer.invoke('get-sobreavisos-by-date', date);
 };
 
+/**
+ * Publica a escala e envia por e-mail para todos os funcionários ativos.
+ * @param {Object} params - { scaleDate, shifts, monthName, year }
+ */
+export const publishScale = async (params) => {
+  return await window.ipcRenderer.invoke('publish-scale', params);
+};
+

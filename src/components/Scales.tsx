@@ -7,6 +7,7 @@ import ConfirmationModal from './modal/ConfirmationModal';
 import { CreateScaleResult } from '../../electron/preload/services/scale';
 import { differenceInCalendarMonths } from "date-fns";
 import { DownloadScaleButton } from './publish-button';
+import { PublishScaleButton } from './publish-button/publish-button';
 
 export type ScaleShift = {
   dateStr: string;
@@ -70,9 +71,9 @@ const Scales: React.FC = () => {
       console.log('Plantao Result completo:', JSON.stringify(plantaoResult, null, 2));
       console.log('ETA keys:', etaResult ? Object.keys(etaResult) : 'null');
       console.log('Plantao keys:', plantaoResult ? Object.keys(plantaoResult) : 'null');
-      
+
       const holidaysMap: { [key: string]: string } = {};
-      
+
       // Tentar diferentes possíveis estruturas de dados
       if (etaResult?.holidays && Array.isArray(etaResult.holidays)) {
         console.log('✅ Feriados ETA encontrados:', etaResult.holidays);
@@ -88,7 +89,7 @@ const Scales: React.FC = () => {
       } else {
         console.log('❌ ETA não tem holidays ou não é array:', etaResult?.holidays);
       }
-      
+
       if (plantaoResult?.holidays && Array.isArray(plantaoResult.holidays)) {
         console.log('✅ Feriados PLANTAO encontrados:', plantaoResult.holidays);
         plantaoResult.holidays.forEach((holiday: any) => {
@@ -103,7 +104,7 @@ const Scales: React.FC = () => {
       } else {
         console.log('❌ PLANTAO não tem holidays ou não é array:', plantaoResult?.holidays);
       }
-      
+
       console.log('Holidays Map final:', JSON.stringify(holidaysMap, null, 2));
       console.log('Total de feriados:', Object.keys(holidaysMap).length);
       console.log('=== FIM DEBUG ===');
@@ -447,7 +448,13 @@ const Scales: React.FC = () => {
           <DownloadScaleButton
             scaleDate={currentDate}
             shifts={shifts}
-            disabled={!scaleIds.ETA || !scaleIds.PLANTAO_TARDE || !ableToCreate}
+            disabled={!scaleIds.ETA || !scaleIds.PLANTAO_TARDE}
+          />
+
+          <PublishScaleButton
+            scaleDate={currentDate}
+            shifts={shifts}
+            disabled={!scaleIds.ETA || !scaleIds.PLANTAO_TARDE}
           />
 
           <button
