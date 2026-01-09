@@ -88,7 +88,7 @@ export class ScaleService {
             : e.restrictions.split(",") as ('WEEKENDS' | 'HOLYDAYS')[],
         }));
 
-      const shifts = ScaleGenerator.generateETA({
+      const shifts = ScaleGenerator.generate({
         employees: mappedEmployees,
         month,
         year,
@@ -297,7 +297,7 @@ export class ScaleService {
     `);
 
     const result = stmt.get(employeeId, date) as { count: number };
-    
+
     return result.count > 0;
   }
 
@@ -318,11 +318,11 @@ export class ScaleService {
 
       for (const shift of shifts) {
         const shiftDay = parseInt(shift.date.split('-')[2], 10);
-        
+
         const diff = Math.abs(newDay - shiftDay);
 
         if (diff > 0 && diff < 4) {
-           return true; // Violação detectada
+          return true; // Violação detectada
         }
       }
 
@@ -338,7 +338,7 @@ export class ScaleService {
       const dateObj = new Date(date + 'T12:00:00'); // T12 para evitar problemas de fuso
       const dayOfWeek = dateObj.getDay(); // 0 = Dom, 6 = Sáb
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      
+
       const dayOfMonth = parseInt(date.split('-')[2], 10);
       const isHoliday = this.repository.isHoliday(scaleId, dayOfMonth);
 
@@ -346,7 +346,7 @@ export class ScaleService {
       // findByIds retorna um array, pegamos o primeiro
       const employees = this.employeeRepository.findByIds([employeeId]);
       if (employees.length === 0) return null;
-      
+
       const employee = employees[0];
       const restrictions = employee.restrictions ? employee.restrictions.split(',') : [];
 
@@ -371,9 +371,9 @@ export class ScaleService {
     try {
       console.log('=== SERVICE: createSobreaviso ===');
       console.log('Params recebidos:', params);
-      
+
       const { month, year, employeeIds } = createSobreavisoSchema.parse(params);
-      
+
       console.log('Após parse - month:', month, 'year:', year);
       console.log('EmployeeIds ETA:', employeeIds.ETA);
       console.log('EmployeeIds PLANTAO_TARDE:', employeeIds.PLANTAO_TARDE);

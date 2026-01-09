@@ -15,162 +15,150 @@ type GenerateETAScaleParams = {
 }
 
 export class ScaleGenerator {
-  static generateETA({ employees, month, year, holidays }: GenerateETAScaleParams) {
+  static generate({ employees, month, year, holidays }: GenerateETAScaleParams) {
     const daysInMonth = new Date(year, month, 0).getDate(); // trick
-
-    // Mapa vai conter o funcionário escolhido para aquele turno com o número do dia como chave.
-    const shiftMapETA = new Map<number, string>();
-    const shiftMapPLANTAO_TARDE = new Map<number, string>();
 
     // Carga de trabalho de cada funcionário medida em quantidade de dias.
     const workload = new Map<string, number>();
 
-    // Esse mapa vai conter o(s) funcionário(s) que não podem trabalhar em um determinado dia.
-    const blockedMapETA = new Map<number, string[]>();
-    const blockedMapPLANTAO_TARDE = new Map<number, string[]>();
+    const bothScalesEmployees: Employee[] = [];
+    const etaEmployees: Employee[] = [];
+    const plantaoTardeEmployees: Employee[] = [];
 
-    // Popula esse mapa de bloqueio com uma array vazio para cada dia.
-    Array
-      .from({ length: daysInMonth })
-      .forEach((_, index) => {
-        blockedMapETA.set(index + 1, []);
-        blockedMapPLANTAO_TARDE.set(index + 1, []);
-      });
+    for (const emp of employees) {
+      const eta = emp.availabilities.includes("ETA");
+      const plantaoTarde = emp.availabilities.includes("PLANTAO_TARDE");
 
-    const workInTwoScales = (employee: Employee) => {
-      return employee.availabilities.length === 2;
-    }
-
-    const isValidDayOfPLANTAO_TARDE = (day: number) => {
-      if (day < 1 || day > daysInMonth) return false;
-
-      const date = new Date(year, month - 1, day);
-      // const dayOfWeek = date.getDay();
-      // if (dayOfWeek === 0 || dayOfWeek === 6) return false;
-
-      if (shiftMapPLANTAO_TARDE.has(day)) return false;
-
-      return !holidays.some(holiday => date.getTime() === holiday.getTime());
-    }
-
-    const getNextDayOfPLANTAO_TARDE = (baseDay: number) => {
-      let dayCount = baseDay + 1;
-
-      while (!isValidDayOfPLANTAO_TARDE(dayCount) && dayCount <= daysInMonth) {
-        dayCount++;
+      if (eta && plantaoTarde) {
+        bothScalesEmployees.push(emp);
+      } else if (eta) {
+        etaEmployees.push(emp);
+      } else if (plantaoTarde) {
+        plantaoTardeEmployees.push(emp);
       }
-
-      return isValidDayOfPLANTAO_TARDE(dayCount) ? dayCount : null;
     }
 
-    const getETAOrderedCandidates = (day: number) => {
-      const blockedArray = blockedMapETA.get(day)!;
-
-      const etaEmployees = employees.filter(e => e.availabilities.includes("ETA"));
-      const nonBlocked = etaEmployees.filter(e => !blockedArray.includes(e.id));
-
-      const workOnBoth = nonBlocked.filter(e => workInTwoScales(e));
-      const workOnOne = nonBlocked.filter(e => !workInTwoScales(e));
-
-      const ordered = workOnOne.sort((a, b) => {
-        const aWorkLoad = workload.get(a.id) ?? 0;
-        const bWorkLoad = workload.get(b.id) ?? 0;
-        return aWorkLoad - bWorkLoad;
-      });
-
-      return [...workOnBoth, ...ordered];
+    const ctx = {
+      ETA: new ETAScaleManager(
+        month,
+        year,
+        daysInMonth,
+        etaEmployees,
+        workload
+      ),
+      PLANTAO_TARDE: new PlantaoTardeScaleManager(
+        month,
+        year,
+        daysInMonth,
+        holidays,
+        plantaoTardeEmployees,
+        workload
+      )
     }
 
-    // Popula os turnos da ETA
-    for (let day = 1; day <= daysInMonth; day++) {
-      const candidates = getETAOrderedCandidates(day);
+    // Primeiro passo: iterar todos os funcionários que trabalham nas duas escalas e popular tudo deles.
+    for (const employee of bothScalesEmployees) {
+      let day = ctx.ETA.getNextDayToPopulate(1);
+      if (!day || day >= daysInMonth) continue;
+
+      while (day <= daysInMonth) {
+        ctx.ETA.shifts.set(day, employee.id);
+        ctx.PLANTAO_TARDE.blocked.get(day)?.push(employee.id);
+        workload.set(employee.id, 1 + (workload.get(employee.id) ?? 0));
+
+        // Folga um dia nas duas escalas.
+        if (day + 1 <= daysInMonth) {
+          ctx.ETA.blocked.get(day + 1)?.push(employee.id);
+          ctx.PLANTAO_TARDE.blocked.get(day + 1)?.push(employee.id);
+        }
+
+        // Se viável, trabalha no plantão da tarde no primeiro dia após a folga.
+        if (day + 2 <= daysInMonth) {
+          ctx.ETA.blocked.get(day + 2)?.push(employee.id);
+
+          if (ctx.PLANTAO_TARDE.shouldPopulate(day + 2)) {
+            ctx.PLANTAO_TARDE.shifts.set(day + 2, employee.id);
+            workload.set(employee.id, 1 + (workload.get(employee.id) ?? 0));
+          }
+        }
+
+        // Se viável, trabalha no plantão da tarde no segundo dia após a folga.
+        if (day + 3 <= daysInMonth) {
+          ctx.ETA.blocked.get(day + 3)?.push(employee.id);
+
+          if (ctx.PLANTAO_TARDE.shouldPopulate(day + 3)) {
+            ctx.PLANTAO_TARDE.shifts.set(day + 3, employee.id);
+            workload.set(employee.id, 1 + (workload.get(employee.id) ?? 0));
+          }
+        }
+
+        day += 4;
+      }
+    }
+
+    // Segundo passo: popular os dias remanescentes da ETA.
+    let nextEtaDay = ctx.ETA.getNextDayToPopulate(1);
+
+    while (nextEtaDay !== null) {
+      const candidates = ctx.ETA.getOrderedCandidates(nextEtaDay);
 
       if (!candidates.length) {
         throw new Error("Não existem funcionários suficientes na ETA para manter três dias de folga após um dia de trabalho.");
       }
 
-      // Seleciona o funcionário para esse dia
       const choosed = candidates[0];
-      shiftMapETA.set(day, choosed.id);
+      ctx.ETA.shifts.set(nextEtaDay, choosed.id);
+      workload.set(choosed.id, 1 + (workload.get(choosed.id) ?? 0));
 
-      // Folga três dias na ETA
+      // Esse funcionário folga três dias na ETA.
       for (let i = 1; i <= 3; i++) {
-        if (day + i <= daysInMonth) {
-          const blockArrayETA = blockedMapETA.get(day + i)!;
-          blockArrayETA.push(choosed.id);
+        if (nextEtaDay + i <= daysInMonth) {
+          ctx.ETA.blocked.get(nextEtaDay + i)?.push(choosed.id);
         }
       }
-      // Não trabalha hoje ne amanhã no PLANTAO_TARDE
-      const blockArrayPLANTAO_TARDE = blockedMapPLANTAO_TARDE.get(day)!;
-      blockArrayPLANTAO_TARDE.push(choosed.id);
 
-      if (day + 1 <= daysInMonth) {
-        const blockArrayPLANTAO_TARDE = blockedMapPLANTAO_TARDE.get(day + 1)!;
-        blockArrayPLANTAO_TARDE.push(choosed.id);
-      }
-
-      // Carga de trabalho aumenta
-      workload.set(choosed.id, 1 + (workload.get(choosed.id) ?? 0));
+      nextEtaDay = ctx.ETA.getNextDayToPopulate(nextEtaDay + 1);
     }
 
-    // Para cada funcionário que está nas duas escalas
-    employees.forEach((employee) => {
-      if (!workInTwoScales(employee)) return;
+    // Terceiro passo: popular os dias remanescentes do plantão da tarde.
+    let nextPlantaoDay = ctx.PLANTAO_TARDE.getNextDayToPopulate(1);
 
+    while (nextPlantaoDay !== null) {
+      const candidates = ctx.PLANTAO_TARDE.getOrderedCandidates(nextPlantaoDay);
+      let choosed = false;
 
-      for (const [day, employeeId] of shiftMapETA) {
-        if (employee.id !== employeeId) continue;
-        // Para cada dia que ele trabalha na ETA
-
-        // Trabalhe dois no PLANTAO_TARDE após um de folga, quando possível
-        for (let i = 1; i <= 2; i++) {
-          const nextDay = getNextDayOfPLANTAO_TARDE(day + i);
-          if (nextDay === null) break;
-
-          const blockedArray = blockedMapPLANTAO_TARDE.get(nextDay)!;
-          if (blockedArray.includes(employeeId)) continue;
-
-          shiftMapPLANTAO_TARDE.set(nextDay, employeeId);
-          workload.set(employeeId, 1 + (workload.get(employeeId) ?? 0));
-        }
-      }
-    });
-
-    const getOrderedCandidatesOfPLANTAO_TARDE = (day: number) => {
-      const blockedArray = blockedMapPLANTAO_TARDE.get(day)!;
-
-      const plantaoTardeEmployees = employees.filter(e => e.availabilities.includes("PLANTAO_TARDE"));
-      const nonBlocked = plantaoTardeEmployees.filter(e => !blockedArray.includes(e.id));
-
-      const ordered = nonBlocked.sort((a, b) => {
-        const aWorkLoad = workload.get(a.id) ?? 0;
-        const bWorkLoad = workload.get(b.id) ?? 0;
-        return aWorkLoad - bWorkLoad;
-      });
-
-      return ordered;
-    }
-
-    // Popula os turnos do PLANTAO_TARDE
-    for (let day = 1; day <= daysInMonth; day++) {
-      if (!isValidDayOfPLANTAO_TARDE(day)) continue;
-
-      const candidates = getOrderedCandidatesOfPLANTAO_TARDE(day);
-
-      if (!candidates.length) {
-        throw new Error("Não existem funcionários suficientes no Plantão da Tarde para completar a escala.");
-      }
+      const date = new Date(year, month - 1, nextPlantaoDay);
+      const dayOfWeek = date.getDay();
+      const isHoliday = holidays.some(holiday => date.getTime() === holiday.getTime());
 
       // Seleciona o funcionário para esse dia
-      const choosed = candidates[0];
-      shiftMapPLANTAO_TARDE.set(day, choosed.id);
+      for (const candidate of candidates) {
+        const weekendRestriction = candidate.restrictions.includes("WEEKENDS");
+        const holidaysRestriction = candidate.restrictions.includes("HOLYDAYS");
 
-      // Carga de trabalho aumenta
-      workload.set(choosed.id, 1 + (workload.get(choosed.id) ?? 0));
+        if ((dayOfWeek === 0 || dayOfWeek === 6) && weekendRestriction) {
+          continue; // employee does not work in weekends
+        }
+
+        if (isHoliday && holidaysRestriction) {
+          continue; // employee does not work in holidays
+        }
+
+        choosed = true;
+        ctx.PLANTAO_TARDE.shifts.set(nextPlantaoDay, candidate.id);
+        workload.set(candidate.id, 1 + (workload.get(candidate.id) ?? 0));
+        break;
+      }
+
+      if (!choosed) {
+        throw new Error("Não existem funcionários suficientes no Plantão da Tarde para completar a escala.");
+      } else {
+        nextPlantaoDay = ctx.PLANTAO_TARDE.getNextDayToPopulate(nextPlantaoDay + 1);
+      }
     }
 
     const shiftsETA: ScaleShift[] = Array
-      .from(shiftMapETA.entries())
+      .from(ctx.ETA.shifts.entries())
       .map(([day, employeeId]) => {
         const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
@@ -185,7 +173,7 @@ export class ScaleGenerator {
       });
 
     const shiftsPLANTAO_TARDE: ScaleShift[] = Array
-      .from(shiftMapPLANTAO_TARDE.entries())
+      .from(ctx.PLANTAO_TARDE.shifts.entries())
       .map(([day, employeeId]) => {
         const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
@@ -200,5 +188,135 @@ export class ScaleGenerator {
       });
 
     return [...shiftsETA, ...shiftsPLANTAO_TARDE];
+  }
+}
+
+class ETAScaleManager {
+  public shifts: Map<number, string> = new Map(); // day -> employeeId
+  public blocked: Map<number, string[]> = new Map(); // day -> employeeIds[]
+
+  constructor(
+    private month: number,
+    private year: number,
+    private daysInMonth: number,
+    private employees: Employee[],
+    private workload: Map<string, number>
+  ) {
+    Array
+      .from({ length: daysInMonth })
+      .forEach((_, index) => {
+        this.blocked.set(index + 1, []);
+      });
+  }
+
+  /**
+   * Indica se um dia é válido para ser populado.
+   */
+  shouldPopulate(day: number) {
+    const isInvalid = day < 1 || day > this.daysInMonth;
+    const isPopulated = this.shifts.has(day);
+
+    return !(isInvalid || isPopulated);
+  }
+
+  /**
+   * Retorna o próximo dia a ser populado.
+   */
+  getNextDayToPopulate(from: number) {
+    for (let i = 0; from + i <= this.daysInMonth; i++) {
+      if (this.shouldPopulate(from + i)) {
+        return from + i;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Indica se o funcionário trabalha nas duas escalas.
+   */
+  workInTwoScales(employee: Employee) {
+    return employee.availabilities.length === 2;
+  }
+
+  /**
+   * Retorna os candidatos por ordem de prioridade.
+   */
+  getOrderedCandidates(day: number): Employee[] {
+    const blockedArray = this.blocked.get(day)!;
+
+    const nonBlocked = this.employees.filter(e => !blockedArray.includes(e.id));
+
+    const orderedPerWorkload = nonBlocked.sort((a, b) => {
+      const aWorkLoad = this.workload.get(a.id) ?? 0;
+      const bWorkLoad = this.workload.get(b.id) ?? 0;
+      return aWorkLoad - bWorkLoad;
+    });
+
+    return orderedPerWorkload;
+  }
+}
+
+class PlantaoTardeScaleManager {
+  public shifts: Map<number, string> = new Map(); // day -> employeeId
+  public blocked: Map<number, string[]> = new Map(); // day -> employeeIds[]
+
+  constructor(
+    private month: number,
+    private year: number,
+    private daysInMonth: number,
+    private holidays: Date[],
+    private employees: Employee[],
+    private workload: Map<string, number>
+  ) {
+    Array
+      .from({ length: daysInMonth })
+      .forEach((_, index) => {
+        this.blocked.set(index + 1, []);
+      });
+  }
+
+  /**
+   * Indica se um dia é válido para ser populado.
+   */
+  shouldPopulate(day: number) {
+    const date = new Date(this.year, this.month - 1, day);
+
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+    const isInvalid = day < 1 || day > this.daysInMonth;
+    const isPopulated = this.shifts.has(day);
+    const isHoliday = this.holidays.some(holiday => date.getTime() === holiday.getTime());
+
+    return !(isWeekend || isInvalid || isPopulated || isHoliday);
+  }
+
+  /**
+   * Retorna o próximo dia a ser populado.
+   */
+  getNextDayToPopulate(from: number) {
+    for (let i = 0; from + i <= this.daysInMonth; i++) {
+      if (this.shouldPopulate(from + i)) {
+        return from + i;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Retorna os candidatos por ordem de prioridade.
+   */
+  getOrderedCandidates(day: number): Employee[] {
+    const blockedArray = this.blocked.get(day)!;
+
+    const nonBlocked = this.employees.filter(e => !blockedArray.includes(e.id));
+
+    const orderedPerWorkload = nonBlocked.sort((a, b) => {
+      const aWorkLoad = this.workload.get(a.id) ?? 0;
+      const bWorkLoad = this.workload.get(b.id) ?? 0;
+      return aWorkLoad - bWorkLoad;
+    });
+
+    return orderedPerWorkload;
   }
 }
