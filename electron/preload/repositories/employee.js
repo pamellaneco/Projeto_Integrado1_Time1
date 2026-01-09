@@ -154,7 +154,6 @@ export class EmployeeRepository {
           e.id,
           e.name,
           e."function",
-          e.cellphone,
           e.email,
           (
             SELECT GROUP_CONCAT(r.type)
