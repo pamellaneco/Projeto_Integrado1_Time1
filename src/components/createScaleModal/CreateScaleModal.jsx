@@ -3,7 +3,7 @@ import { findEligibleEmployees } from '../../ipc-bridge/employee';
 import { createScale } from '../../ipc-bridge/scale';
 import './CreateScaleModal.css';
 
-function CreateScaleModal({ isOpen, onClose, onSubmit, month, year, skipHolidays = false, preSelectedETA = [], preSelectedPlantao = [] }) {
+function CreateScaleModal({ isOpen, onClose, onSubmit, month, year, skipHolidays = false }) {
     const [step, setStep] = useState(1);
     const [selectedType, setSelectedType] = useState('PLANTAO_TARDE');
 
@@ -27,14 +27,13 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year, skipHolidays
 
             setEmployees(employees);
 
-            // Usar funcionários pré-selecionados se fornecidos
-            if (preSelectedETA.length > 0 || preSelectedPlantao.length > 0) {
-                setSelectedEmployeesETA(preSelectedETA);
-                setSelectedEmployeesPlantao(preSelectedPlantao);
-            } else {
-                setSelectedEmployeesETA([]);
-                setSelectedEmployeesPlantao([]);
-            }
+            setSelectedEmployeesETA(
+                employees.filter(e => e.availabilities !== null && e.availabilities.includes("ETA"))
+            );
+
+            setSelectedEmployeesPlantao(
+                employees.filter(e => e.availabilities !== null && e.availabilities.includes("PLANTAO_TARDE"))
+            );
         } catch (error) {
             console.error('Erro ao carregar funcionários:', error);
             setEmployees([]);
