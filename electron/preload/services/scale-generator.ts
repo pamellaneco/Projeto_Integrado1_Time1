@@ -12,10 +12,11 @@ type GenerateETAScaleParams = {
   month: number;
   year: number;
   holidays: Date[];
+  previousMonthShifts?: ScaleShift[];
 }
 
 export class ScaleGenerator {
-  static generate({ employees, month, year, holidays }: GenerateETAScaleParams) {
+  static generate({ employees, month, year, holidays, previousMonthShifts }: GenerateETAScaleParams) {
     const daysInMonth = new Date(year, month, 0).getDate(); // trick
 
     // Carga de trabalho de cada funcionário medida em quantidade de dias.
@@ -56,43 +57,106 @@ export class ScaleGenerator {
       )
     }
 
+    // Calcula o offset de cada funcionário baseado nos turnos do mês anterior.
+    const employeeCycleOffset = new Map<string, number>();
+
+    if (previousMonthShifts) {
+      const previousMonthYear = month === 1 ? year - 1 : year;
+      const previousMonth = month === 1 ? 12 : month - 1;
+      const daysInPreviousMonth = new Date(previousMonthYear, previousMonth, 0).getDate();
+
+      for (const employee of bothScalesEmployees) {
+        // Ciclo: [0: ETA, 1: Folga, 2: PLANTAO_TARDE (1º dia), 3: PLANTAO_TARDE (2º dia)]
+        // Basta olhar os últimos 4 dias do mês anterior para encontrar um turno na ETA.
+
+        let foundETA = false;
+        for (let daysBack = 0; daysBack < 4; daysBack++) {
+          const checkDay = daysInPreviousMonth - daysBack;
+
+          const etaShiftOnDay = previousMonthShifts.find(
+            s => s.employee_id === employee.id &&
+              s.scaleType === "ETA" &&
+              s.dateStr.endsWith(`-${String(checkDay).padStart(2, '0')}`)
+          );
+
+          if (etaShiftOnDay) {
+            // Encontrou ETA! Calcula o offset baseado em quantos dias se passaram.
+            // Se ETA foi há 0 dias (último dia) -> offset 1 (próximo: folga)
+            // Se ETA foi há 1 dia -> offset 2 (próximo: 1º plantão)
+            // Se ETA foi há 2 dias -> offset 3 (próximo: 2º plantão)
+            // Se ETA foi há 3 dias -> offset 0 (próximo: ETA novamente)
+            employeeCycleOffset.set(employee.id, (daysBack + 1) % 4);
+            foundETA = true;
+            break;
+          }
+        }
+
+        if (!foundETA) {
+          // Não encontrou ETA nos últimos 4 dias, inicia novo ciclo.
+          employeeCycleOffset.set(employee.id, 0);
+        }
+      }
+    } else {
+      // Sem histórico anterior, todos começam no offset 0 (trabalhar na ETA).
+      for (const employee of bothScalesEmployees) {
+        employeeCycleOffset.set(employee.id, 0);
+      }
+    }
+
     // Primeiro passo: iterar todos os funcionários que trabalham nas duas escalas e popular tudo deles.
     for (const employee of bothScalesEmployees) {
-      let day = ctx.ETA.getNextDayToPopulate(1);
-      if (!day || day >= daysInMonth) continue;
+      const offset = employeeCycleOffset.get(employee.id) ?? 0;
+      let cycleDay = offset;
+      let day = 1;
 
       while (day <= daysInMonth) {
-        ctx.ETA.shifts.set(day, employee.id);
-        ctx.PLANTAO_TARDE.blocked.get(day)?.push(employee.id);
-        workload.set(employee.id, 1 + (workload.get(employee.id) ?? 0));
+        if (cycleDay === 0) {
+          // Trabalha na ETA.
+          const nextEtaDay = ctx.ETA.getNextDayToPopulate(day);
+          if (!nextEtaDay) break;
 
-        // Folga um dia nas duas escalas.
-        if (day + 1 <= daysInMonth) {
-          ctx.ETA.blocked.get(day + 1)?.push(employee.id);
-          ctx.PLANTAO_TARDE.blocked.get(day + 1)?.push(employee.id);
-        }
+          ctx.ETA.shifts.set(nextEtaDay, employee.id);
+          ctx.PLANTAO_TARDE.blocked.get(nextEtaDay)?.push(employee.id);
+          workload.set(employee.id, 1 + (workload.get(employee.id) ?? 0));
 
-        // Se viável, trabalha no plantão da tarde no primeiro dia após a folga.
-        if (day + 2 <= daysInMonth) {
-          ctx.ETA.blocked.get(day + 2)?.push(employee.id);
-
-          if (ctx.PLANTAO_TARDE.shouldPopulate(day + 2)) {
-            ctx.PLANTAO_TARDE.shifts.set(day + 2, employee.id);
-            workload.set(employee.id, 1 + (workload.get(employee.id) ?? 0));
+          day = nextEtaDay + 1;
+          cycleDay = 1;
+        } else if (cycleDay === 1) {
+          // Folga nas duas escalas.
+          if (day <= daysInMonth) {
+            ctx.ETA.blocked.get(day)?.push(employee.id);
+            ctx.PLANTAO_TARDE.blocked.get(day)?.push(employee.id);
           }
-        }
 
-        // Se viável, trabalha no plantão da tarde no segundo dia após a folga.
-        if (day + 3 <= daysInMonth) {
-          ctx.ETA.blocked.get(day + 3)?.push(employee.id);
+          day++;
+          cycleDay = 2;
+        } else if (cycleDay === 2) {
+          // Primeiro dia de plantão da tarde (quando possível).
+          if (day <= daysInMonth) {
+            ctx.ETA.blocked.get(day)?.push(employee.id);
 
-          if (ctx.PLANTAO_TARDE.shouldPopulate(day + 3)) {
-            ctx.PLANTAO_TARDE.shifts.set(day + 3, employee.id);
-            workload.set(employee.id, 1 + (workload.get(employee.id) ?? 0));
+            if (ctx.PLANTAO_TARDE.shouldPopulate(day)) {
+              ctx.PLANTAO_TARDE.shifts.set(day, employee.id);
+              workload.set(employee.id, 1 + (workload.get(employee.id) ?? 0));
+            }
           }
-        }
 
-        day += 4;
+          day++;
+          cycleDay = 3;
+        } else if (cycleDay === 3) {
+          // Segundo dia de plantão da tarde (quando possível).
+          if (day <= daysInMonth) {
+            ctx.ETA.blocked.get(day)?.push(employee.id);
+
+            if (ctx.PLANTAO_TARDE.shouldPopulate(day)) {
+              ctx.PLANTAO_TARDE.shifts.set(day, employee.id);
+              workload.set(employee.id, 1 + (workload.get(employee.id) ?? 0));
+            }
+          }
+
+          day++;
+          cycleDay = 0;
+        }
       }
     }
 

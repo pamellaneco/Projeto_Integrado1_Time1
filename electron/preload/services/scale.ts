@@ -88,11 +88,31 @@ export class ScaleService {
             : e.restrictions.split(",") as ('WEEKENDS' | 'HOLYDAYS')[],
         }));
 
+      // Buscar shifts do mês anterior para manter continuidade do ciclo
+      const previousMonth = month === 1 ? 12 : month - 1;
+      const previousYear = month === 1 ? year - 1 : year;
+      const previousMonthString = `${previousYear}-${previousMonth.toString().padStart(2, '0')}`;
+
+      let previousMonthShifts: ScaleShift[] = [];
+
+      // Buscar shifts de ambas as escalas do mês anterior
+      const etaScalePrevious = this.repository.findByMonthAndType(previousMonthString, 'ETA');
+      const plantaoScalePrevious = this.repository.findByMonthAndType(previousMonthString, 'PLANTAO_TARDE');
+
+      if (etaScalePrevious) {
+        previousMonthShifts = [...previousMonthShifts, ...etaScalePrevious.shifts];
+      }
+
+      if (plantaoScalePrevious) {
+        previousMonthShifts = [...previousMonthShifts, ...plantaoScalePrevious.shifts];
+      }
+
       const shifts = ScaleGenerator.generate({
         employees: mappedEmployees,
         month,
         year,
-        holidays: holidays.map(holiday => new Date(year, month - 1, holiday))
+        holidays: holidays.map(holiday => new Date(year, month - 1, holiday)),
+        previousMonthShifts: previousMonthShifts.length > 0 ? previousMonthShifts : undefined
       });
 
       const monthString = `${year}-${month.toString().padStart(2, '0')}`;
