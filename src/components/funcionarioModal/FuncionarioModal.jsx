@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import './FuncionarioModal.css';
 import ConfirmationModal from '../modal/ConfirmationModal';
 import { maskPhone } from '../../utils/masks';
@@ -79,12 +80,12 @@ function FuncionarioModal({ isOpen, onClose, initialMode, employee, handleCreate
     // --- PASSO 2.4: Atualizado para usar 'currentMode' ---
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         // Validar email antes de submeter
         if (emailError || !email) {
-            return alert("Por favor, insira um email válido.");
+            return toast.error("Por favor, insira um email válido.");
         }
-        
+
         const payload = {
             name: nome,
             function: cargo,
@@ -94,7 +95,7 @@ function FuncionarioModal({ isOpen, onClose, initialMode, employee, handleCreate
         };
 
         if (!payload.availabilities.length) {
-            return alert("Funcionário precisa ter uma disponibilidade.");
+            return toast.error("Funcionário precisa ter uma disponibilidade.");
         }
 
         if (currentMode === 'create') {
@@ -218,7 +219,7 @@ function FuncionarioModal({ isOpen, onClose, initialMode, employee, handleCreate
                                 onChange={(e) => {
                                     const value = e.target.value;
                                     setEmail(value);
-                                    
+
                                     // Validação de email
                                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                                     if (value && !emailRegex.test(value)) {

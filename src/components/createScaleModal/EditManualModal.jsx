@@ -1,29 +1,30 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 // Importamos a busca de todos os funcionários e dados do dia
 import { findEligibleEmployees } from '../../ipc-bridge/employee';
-import { getDayModalData, updateManualShifts } from '../../ipc-bridge/scale'; 
+import { getDayModalData, updateManualShifts } from '../../ipc-bridge/scale';
 import ConflictModal from '../modal/ConflictModal';
-import './CreateScaleModal.css'; 
+import './CreateScaleModal.css';
 
 function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
-    const [employees, setEmployees] = useState([]); 
-    
+    const [employees, setEmployees] = useState([]);
+
     // Estado unificado para guardar as seleções de AMBAS as escalas
     const [allocations, setAllocations] = useState({ ETA: [], PLANTAO_TARDE: [] });
-    
+
     const [scaleType, setScaleType] = useState('PLANTAO_TARDE');
     const [loading, setLoading] = useState(true);
     const [pendingViolations, setPendingViolations] = useState(null);
-    
+
     const year = date ? date.split('-')[0] : '';
     const monthIndex = date ? parseInt(date.split('-')[1], 10) : 1;
     const day = date ? parseInt(date.split('-')[2], 10) : 1;
-    
+
     const getMonthName = () => {
-        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho','Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         return monthNames[monthIndex - 1];
     };
-    
+
     // Carrega TUDO (Funcionários e Alocações das duas escalas) ao abrir o modal
     useEffect(() => {
         if (!isOpen || !date) return;
@@ -32,7 +33,7 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
             setLoading(true);
             try {
                 // 1. Busca TODOS os funcionários elegíveis (sem filtro inicial)
-                const allEmployees = await findEligibleEmployees({}); 
+                const allEmployees = await findEligibleEmployees({});
                 setEmployees(allEmployees || []);
 
                 // 2. Busca alocações atuais para ETA e PLANTAO_TARDE em paralelo
@@ -60,30 +61,30 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
                 }
 
                 await Promise.all(promises);
-                
+
                 // Atualiza o estado com as alocações encontradas
                 setAllocations(newAllocations);
 
             } catch (error) {
                 console.error("Erro ao carregar dados:", error);
-                alert(`Erro ao carregar dados: ${error.message}`);
+                toast.error(`Erro ao carregar dados: ${error.message}`);
             } finally {
                 setLoading(false);
             }
         };
 
         loadAllData();
-    }, [isOpen, date, scaleIds]); 
+    }, [isOpen, date, scaleIds]);
 
     // Função de Toggle inteligente: altera apenas a lista da aba atual (scaleType)
     const toggleEmployee = (employeeId) => {
         setAllocations(prev => {
             const currentList = prev[scaleType]; // Pega a lista atual (ETA ou TARDE)
-            
+
             const newList = currentList.includes(employeeId)
                 ? currentList.filter(id => id !== employeeId) // Remove se já existe
                 : [...currentList, employeeId]; // Adiciona se não existe
-            
+
             // Retorna o objeto completo com a chave atualizada
             return { ...prev, [scaleType]: newList };
         });
@@ -120,16 +121,16 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
             }
 
             const results = await Promise.all(promises);
-            
+
             // Verifica se algum resultado requer confirmação (violations)
             const needsConfirmation = results.find(r => r.requireConfirmation);
-            
+
             if (needsConfirmation && !force) {
                 // Coleta todas as violações de todos os resultados
                 const allViolations = results
                     .filter(r => r.violations)
                     .flatMap(r => r.violations);
-                
+
                 setPendingViolations(allViolations);
                 setLoading(false);
                 return; // Não fecha o modal, espera confirmação do usuário
@@ -143,7 +144,7 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
             onClose();
 
         } catch (error) {
-            alert(`Falha ao salvar: ${error.message}`);
+            toast.error(`Falha ao salvar: ${error.message}`);
         } finally {
             setLoading(false);
         }
@@ -180,7 +181,7 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
                 <h2 className="modal-title">
                     Editar Dia - <span>{day} de {getMonthName()} de {year}</span>
                 </h2>
-                
+
                 <div className="tabs-container">
                     <button
                         className={`tab-btn ${scaleType === 'PLANTAO_TARDE' ? 'active' : 'inactive'}`}
@@ -197,7 +198,7 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
                 </div>
 
                 {loading ? (
-                    <div className="employee-list" style={{textAlign: 'center', padding: '20px'}}>
+                    <div className="employee-list" style={{ textAlign: 'center', padding: '20px' }}>
                         Carregando dados...
                     </div>
                 ) : (
@@ -231,9 +232,9 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
                                     </div>
                                 ))
                             )}
-                            
+
                             {!currentScaleId && (
-                                <div style={{textAlign: 'center', color: 'orange', fontSize: '12px', marginTop: '10px'}}>
+                                <div style={{ textAlign: 'center', color: 'orange', fontSize: '12px', marginTop: '10px' }}>
                                     (Crie a escala de {scaleType} para poder editar)
                                 </div>
                             )}
@@ -245,8 +246,8 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
                     <button className="btn-nav btn-prev-step1" onClick={onClose} disabled={loading}>
                         CANCELAR
                     </button>
-                    <button 
-                        className="btn-nav btn-finish" 
+                    <button
+                        className="btn-nav btn-finish"
                         onClick={() => handleConcluir(false)}
                         // Botão desabilitado apenas se estiver carregando. 
                         // Se uma escala existir e a outra não, permite salvar a que existe.

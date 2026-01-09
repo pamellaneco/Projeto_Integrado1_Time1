@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import './DashboardPage.css';
 import { getScale, createSobreaviso, getSobreavisosByDate } from '../ipc-bridge/scale';
 import { getAllEmployees } from '../ipc-bridge/employee';
@@ -58,7 +59,7 @@ const DashboardPage: React.FC = () => {
       if (etaResult?.shifts) {
         console.log('Total ETA shifts:', etaResult.shifts.length);
         console.log('Primeiros 3 shifts ETA:', etaResult.shifts.slice(0, 3));
-        
+
         const etaShifts = etaResult.shifts.filter(
           (shift: any) => {
             console.log(`Comparando: "${shift.dateStr}" === "${todayString}"`);
@@ -66,7 +67,7 @@ const DashboardPage: React.FC = () => {
           }
         );
         console.log('ETA shifts para hoje:', etaShifts);
-        
+
         etaShifts.forEach((shift: any) => {
           shifts.push({
             employee_name: shift.employee_name,
@@ -94,12 +95,12 @@ const DashboardPage: React.FC = () => {
       if (plantaoResult?.shifts) {
         console.log('Total Plantão shifts:', plantaoResult.shifts.length);
         console.log('Primeiros 3 shifts Plantão:', plantaoResult.shifts.slice(0, 3));
-        
+
         const plantaoShifts = plantaoResult.shifts.filter(
           (shift: any) => shift.dateStr === todayString
         );
         console.log('Plantão shifts para hoje:', plantaoShifts);
-        
+
         plantaoShifts.forEach((shift: any) => {
           shifts.push({
             employee_name: shift.employee_name,
@@ -125,7 +126,7 @@ const DashboardPage: React.FC = () => {
 
       // Processar feriados
       const holidaysMap: { [key: string]: string } = {};
-      
+
       if (etaResult?.holidays && Array.isArray(etaResult.holidays)) {
         etaResult.holidays.forEach((holiday: any) => {
           const dateKey = holiday.date || holiday.holiday_date;
@@ -135,7 +136,7 @@ const DashboardPage: React.FC = () => {
           }
         });
       }
-      
+
       if (plantaoResult?.holidays && Array.isArray(plantaoResult.holidays)) {
         plantaoResult.holidays.forEach((holiday: any) => {
           const dateKey = holiday.date || holiday.holiday_date;
@@ -211,11 +212,11 @@ const DashboardPage: React.FC = () => {
       const year = today.getFullYear();
       const month = String(today.getMonth() + 1).padStart(2, '0');
       const todayString = `${year}-${month}-${String(today.getDate()).padStart(2, '0')}`;
-      
+
       console.log('Buscando sobreavisos para pré-seleção:', todayString);
       const sobreavisos = await getSobreavisosByDate(todayString);
       console.log('Sobreavisos encontrados:', sobreavisos);
-      
+
       if (sobreavisos && Array.isArray(sobreavisos)) {
         const etaEmployees = sobreavisos
           .filter((s: any) => s.scale_type === 'ETA')
@@ -224,7 +225,7 @@ const DashboardPage: React.FC = () => {
             name: s.employee_name,
             email: s.employee_email
           }));
-        
+
         const plantaoEmployees = sobreavisos
           .filter((s: any) => s.scale_type === 'PLANTAO_TARDE')
           .map((s: any) => ({
@@ -232,17 +233,17 @@ const DashboardPage: React.FC = () => {
             name: s.employee_name,
             email: s.employee_email
           }));
-        
+
         console.log('ETA pré-selecionados:', etaEmployees);
         console.log('Plantão pré-selecionados:', plantaoEmployees);
-        
+
         setPreSelectedSobreavisoETA(etaEmployees);
         setPreSelectedSobreavisoPlantao(plantaoEmployees);
       } else {
         setPreSelectedSobreavisoETA([]);
         setPreSelectedSobreavisoPlantao([]);
       }
-      
+
       setIsSobreavisoModalOpen(true);
     } catch (error) {
       console.error('Erro ao buscar sobreavisos:', error);
@@ -258,18 +259,18 @@ const DashboardPage: React.FC = () => {
     try {
       const sobreavisoResult = await createSobreaviso(result);
       console.log('Resposta do servidor:', sobreavisoResult);
-      
+
       if (sobreavisoResult?.error) {
-        alert(`Erro ao criar sobreaviso: ${sobreavisoResult.error}`);
+        toast.error(`Erro ao criar sobreaviso: ${sobreavisoResult.error}`);
         return;
       }
-      
+
       // Recarregar dados da tela
       await fetchTodayShifts();
-      alert('Sobreavisos criados com sucesso!');
+      toast.success('Sobreavisos criados com sucesso!');
     } catch (error) {
       console.error('Erro ao criar sobreaviso:', error);
-      alert(`Erro ao criar sobreaviso: ${error}`);
+      toast.error(`Erro ao criar sobreaviso: ${error}`);
     }
   };
 
@@ -303,8 +304,8 @@ const DashboardPage: React.FC = () => {
   const isToday = (date: Date) => {
     const today = new Date();
     return date.getDate() === today.getDate() &&
-           date.getMonth() === today.getMonth() &&
-           date.getFullYear() === today.getFullYear();
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear();
   };
 
   const isHoliday = (dateStr: string) => {
@@ -333,7 +334,7 @@ const DashboardPage: React.FC = () => {
             {hasSobreaviso ? 'EDITAR SOBREAVISO' : 'SOBREAVISO'}
           </button>
         </div>
-        
+
         {todayShifts.length === 0 ? (
           <div className="empty-state">
             <p>Nenhum funcionário escalado para hoje.</p>
@@ -350,8 +351,8 @@ const DashboardPage: React.FC = () => {
             </thead>
             <tbody>
               {todayShifts.map((shift, index) => (
-                <tr 
-                  key={index} 
+                <tr
+                  key={index}
                   className="clickable-row"
                   onClick={() => handleEmployeeClick(shift.employee_id)}
                 >
@@ -397,8 +398,8 @@ const DashboardPage: React.FC = () => {
               const isHolidayDate = isHoliday(dateStr);
 
               return (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className={`day-cell ${isTodayDate ? 'today' : ''} ${isHolidayDate ? 'holiday' : ''}`}
                 >
                   <div className={`day-number ${isTodayDate ? 'today' : ''}`}>
@@ -422,7 +423,7 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      
+
       <CreateScaleModal
         isOpen={isSobreavisoModalOpen}
         onClose={() => setIsSobreavisoModalOpen(false)}
@@ -430,8 +431,6 @@ const DashboardPage: React.FC = () => {
         month={new Date().getMonth() + 1}
         year={new Date().getFullYear()}
         skipHolidays={true}
-        preSelectedETA={preSelectedSobreavisoETA as any}
-        preSelectedPlantao={preSelectedSobreavisoPlantao as any}
       />
 
       {isModalOpen && selectedEmployee && (

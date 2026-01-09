@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { findEligibleEmployees } from '../../ipc-bridge/employee';
 import { createScale } from '../../ipc-bridge/scale';
 import './CreateScaleModal.css';
@@ -68,7 +69,7 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year, skipHolidays
         if (step === 1) {
             // Verificar se há funcionários selecionados em ambas as escalas (apenas se não for sobreaviso)
             if (!skipHolidays && (selectedEmployeesETA.length === 0 || selectedEmployeesPlantao.length === 0)) {
-                alert('Selecione pelo menos um funcionário em cada escala (ETA e Plantão da Tarde).');
+                toast.error('Selecione pelo menos um funcionário em cada escala (ETA e Plantão da Tarde).')
                 return;
             }
             if (skipHolidays) {
@@ -110,7 +111,7 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year, skipHolidays
             onClose();
         } catch (error) {
             console.error('Error creating scale:', error);
-            alert(`Erro ao criar escala: ${error.message}`);
+            toast.error(`Erro ao criar escala: ${error.message}`);
         }
     };
 

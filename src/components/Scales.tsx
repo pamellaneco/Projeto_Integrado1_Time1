@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import './Scales.css';
 import { getScale, moveShiftDragDrop } from '../ipc-bridge/scale';
 import CreateScaleModal from './createScaleModal/CreateScaleModal';
@@ -168,12 +169,12 @@ const Scales: React.FC = () => {
   const handleCreateScale = async (result: CreateScaleResult) => {
     try {
       if (!result.success) {
-        return alert(result.errorMessage);
+        return toast.error(result.errorMessage);
       }
       await fetchScale();
     } catch (error) {
       console.error("Erro ao criar escala:", error);
-      alert("Erro ao criar escala. Tente novamente.");
+      toast.error("Erro ao criar escala. Tente novamente.");
     }
   };
 
@@ -294,10 +295,10 @@ const Scales: React.FC = () => {
         await fetchScale();
         setDragConflictModal({ isOpen: false, message: '', pendingMove: null });
       } else {
-        alert('Erro ao forçar mudança: ' + result.error);
+        toast.error('Erro ao forçar mudança: ' + result.error);
       }
     } catch (error) {
-      alert('Erro inesperado ao forçar mudança.');
+      toast.error('Erro inesperado ao forçar mudança.');
     }
   };
 
