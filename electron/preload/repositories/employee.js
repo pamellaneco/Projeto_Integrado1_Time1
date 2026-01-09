@@ -177,6 +177,35 @@ export class EmployeeRepository {
     }
   }
 
+  getById(id) {
+    try {
+      const employee = this.db.prepare(`
+        SELECT
+          e.id,
+          e.name,
+          e."function",
+          e.email,
+          (
+            SELECT GROUP_CONCAT(r.type)
+            FROM employee_restrictions r
+            WHERE r.employee_id = e.id
+          ) AS restrictions,
+          (
+            SELECT GROUP_CONCAT(a.type)
+            FROM employee_availabilities a
+            WHERE a.employee_id = e.id
+          ) AS availabilities
+        FROM employees e
+        WHERE e.id = ? AND e.deleted = 0
+      `).get(id);
+
+      return employee;
+    } catch (error) {
+      console.error("Erro ao buscar funcionário por ID:", error);
+      throw new Error(`Falha ao buscar funcionário por ID: ${error.message}`);
+    }
+  }
+
   create(payload) {
     return this.db.transaction(() => {
       const userInsert = this.db.prepare("INSERT INTO employees (id, name, function, email) VALUES (@id, @name, @function, @email)");

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import './DashboardPage.css';
 import { getScale, createSobreaviso, getSobreavisosByDate } from '../ipc-bridge/scale';
-import { getAllEmployees } from '../ipc-bridge/employee';
+import { getAllEmployees, sendSobreavisoNotifications } from '../ipc-bridge/employee';
 import FuncionarioModal from '../components/funcionarioModal/FuncionarioModal';
 import CreateScaleModal from '../components/createScaleModal/CreateScaleModal';
 
@@ -267,7 +267,59 @@ const DashboardPage: React.FC = () => {
 
       // Recarregar dados da tela
       await fetchTodayShifts();
-      toast.success('Sobreavisos criados com sucesso!');
+
+      // Enviar notificações por email
+      try {
+        const date = new Date().toLocaleDateString('pt-BR');
+        const employees = [];
+
+        // Adicionar funcionários do ETA
+        if (result.employeeIds?.ETA) {
+          for (const employee of result.employeeIds.ETA) {
+            // const employee = await window.ipcRenderer.invoke('get-employee-by-id', employeeId);
+
+            if (employee?.email) {
+              employees.push({
+                name: employee.name,
+                email: employee.email,
+                scaleType: 'ETA'
+              });
+            }
+          }
+        }
+
+        // Adicionar funcionários do PLANTAO_TARDE
+        if (result.employeeIds?.PLANTAO_TARDE) {
+          for (const employee of result.employeeIds.PLANTAO_TARDE) {
+
+            // const employee = await window.ipcRenderer.invoke('get-employee-by-id', employeeId);
+            if (employee?.email) {
+              employees.push({
+                name: employee.name,
+                email: employee.email,
+                scaleType: 'PLANTAO_TARDE'
+              });
+            }
+          }
+        }
+
+        console.log("Funcionários para enviar email de sobreaviso", employees);
+
+        if (employees.length > 0) {
+          const emailResult = await sendSobreavisoNotifications({ employees, date });
+
+          if (emailResult.failed > 0) {
+            toast.error(`Sobreavisos criados! ${emailResult.failed} email(s) não puderam ser enviados.`);
+          } else {
+            toast.success(`Sobreavisos criados e ${emailResult.sent} email(s) enviado(s) com sucesso!`);
+          }
+        } else {
+          toast.success('Sobreavisos criados com sucesso!');
+        }
+      } catch (emailError) {
+        console.error('Erro ao enviar emails:', emailError);
+        toast.error('Sobreavisos criados, mas houve erro ao enviar emails.');
+      }
     } catch (error) {
       console.error('Erro ao criar sobreaviso:', error);
       toast.error(`Erro ao criar sobreaviso: ${error}`);
@@ -431,6 +483,7 @@ const DashboardPage: React.FC = () => {
         month={new Date().getMonth() + 1}
         year={new Date().getFullYear()}
         skipHolidays={true}
+        allEmpty
       />
 
       {isModalOpen && selectedEmployee && (

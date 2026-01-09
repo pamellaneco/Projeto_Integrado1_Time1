@@ -3,6 +3,7 @@ import { EmployeeService } from "../preload/services/employee";
 import { ScaleService } from "../preload/services/scale";
 import { db } from "../database/setup";
 import { AuthService } from "../preload/services/auth";
+import { generateSobreavisoEmailHtml } from "./email-templates.js";
 
 function generateScaleHtml({
   monthLabel,
@@ -234,6 +235,14 @@ ipcMain.handle('delete-employee', async (_, id) => {
   employeeService.delete(id);
 });
 
+ipcMain.handle('get-employee-by-id', async (_, id) => {
+  try {
+    return employeeService.repository.getById(id);
+  } catch (err) {
+    return { error: err?.message ?? String(err) };
+  }
+});
+
 //scale
 const scaleService = new ScaleService(db);
 
@@ -449,6 +458,55 @@ ipcMain.handle('get-sobreavisos-by-date', async (_, date) => {
   try {
     return scaleService.getSobreavisosByDate(date);
   } catch (err) {
+    return { error: err?.message ?? String(err) };
+  }
+});
+
+ipcMain.handle('send-sobreaviso-notifications', async (_, params) => {
+  try {
+    const { employees, date } = params;
+
+    if (!employees || !Array.isArray(employees) || employees.length === 0) {
+      return { sent: 0, failed: 0, message: 'Nenhum funcionário para notificar' };
+    }
+
+    let sent = 0;
+    let failed = 0;
+    const errors = [];
+
+    const { sendEmail } = await import('../preload/external/mailer/index.ts');
+
+    for (const employee of employees) {
+      if (!employee.email) {
+        errors.push(`${employee.name}: sem e-mail cadastrado`);
+        failed++;
+        continue;
+      }
+
+      try {
+        const emailHtml = generateSobreavisoEmailHtml(employee.name, employee.scaleType, new Date());
+
+        await sendEmail({
+          to: employee.email,
+          subject: `Notificação de Sobreaviso - SAAE`,
+          html: emailHtml
+        });
+
+        sent++;
+      } catch (emailError) {
+        console.error(`Erro ao enviar email para ${employee.name}:`, emailError);
+        errors.push(`${employee.name}: ${emailError.message}`);
+        failed++;
+      }
+    }
+
+    return {
+      sent,
+      failed,
+      errors: errors.length > 0 ? errors : undefined
+    };
+  } catch (err) {
+    console.error('Erro ao enviar notificações de sobreaviso:', err);
     return { error: err?.message ?? String(err) };
   }
 });

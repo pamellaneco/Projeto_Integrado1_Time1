@@ -31,3 +31,7 @@ export const deleteEmployee = async (id) => {
   // Error throw should be handled on frontend function call.
   return await window.ipcRenderer.invoke('delete-employee', id);
 }
+
+export const sendSobreavisoNotifications = (params) => {
+  return window.ipcRenderer.invoke('send-sobreaviso-notifications', params);
+};
