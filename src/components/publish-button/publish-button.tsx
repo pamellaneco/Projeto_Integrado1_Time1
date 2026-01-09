@@ -7,6 +7,7 @@ import { publishScale } from "../../ipc-bridge/scale";
 import ConfirmationModal from "../modal/ConfirmationModal";
 import { render } from "@react-email/components";
 import { ScalePublicationEmail } from "../../../electron/preload/external/mailer/templates/publication";
+import toast from 'react-hot-toast';
 
 type PublishScaleButtonProps = ComponentPropsWithoutRef<"button"> & {
   scaleDate: Date;
@@ -49,15 +50,15 @@ export const PublishScaleButton: FC<PublishScaleButtonProps> = ({
       setShowConfirmModal(false);
 
       if (result.error) {
-        alert(`Erro ao publicar escala: ${result.error}`);
+        toast.error(`Erro ao publicar escala: ${result.error}`);
       } else {
-        alert(`Escala publicada com sucesso! ${result.emailsSent} e-mails enviados.`);
+        toast.success(`Escala publicada com sucesso! ${result.emailsSent} e-mails enviados.`);
       }
     } catch (error) {
       setIsPublishing(false);
       setShowConfirmModal(false);
       console.error("Erro ao publicar escala:", error);
-      alert("Erro ao publicar escala. Verifique o console para mais detalhes.");
+      toast.error("Erro ao publicar escala. Verifique o console para mais detalhes.");
     }
   };
 
