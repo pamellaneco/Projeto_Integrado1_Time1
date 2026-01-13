@@ -1,10 +1,13 @@
-import { db } from "../../database/setup";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export class AuthService {
+  constructor(db) {
+    this.db = db;
+  }
+
   login(email, password) {
-    const stmt = db.prepare("SELECT * FROM users WHERE email = @email");
+    const stmt = this.db.prepare("SELECT * FROM users WHERE email = @email");
     const user = stmt.get({ email });
 
     if (!user) throw new Error("Usuário não encontrado.");

@@ -1,9 +1,11 @@
 import { ipcMain } from "electron";
 import { EmployeeService } from "../preload/services/employee";
 import { ScaleService } from "../preload/services/scale";
-import { db } from "../database/setup";
 import { AuthService } from "../preload/services/auth";
 import { generateSobreavisoEmailHtml } from "./email-templates.js";
+import { DatabaseManager } from "../database/database-manager.js";
+
+const db = DatabaseManager.getInstance();
 
 function generateScaleHtml({
   monthLabel,
@@ -127,8 +129,7 @@ function generateScaleHtml({
 `;
 }
 
-// auth
-const auth = new AuthService();
+const auth = new AuthService(db);
 
 ipcMain.handle('auth-login', async (_event, email, password) => {
   try {

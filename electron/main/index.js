@@ -4,9 +4,8 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import os from 'node:os'
 import { update } from './update'
-import { db } from "../database/setup";
+import { DatabaseManager } from "../database/database-manager.js";
 import { migrateDB } from '../database/migrate'
-import { seedDB } from '../database/seed'
 import "dotenv/config";
 import "./handlers";
 
@@ -88,14 +87,15 @@ async function createWindow() {
 
 // Creates the window of the app.
 app.whenReady().then(() => {
+  const db = DatabaseManager.getInstance();
   migrateDB(db);
-  // seedDB(db);
-  // console.log(new AuthService().login("admin@mail.com", "admin"));
   createWindow();
 });
 
 app.on('window-all-closed', () => {
   win = null
+  // Fecha a conexão com o banco de dados antes de encerrar
+  DatabaseManager.close();
   if (process.platform !== 'darwin') app.quit()
 })
 
