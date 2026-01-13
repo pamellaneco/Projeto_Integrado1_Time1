@@ -5,6 +5,8 @@ import { randomUUID } from "crypto";
 import { ScaleGenerator } from "./scale-generator.js";
 import { SqliteError } from "better-sqlite3";
 import { ScaleShift } from "../../../src/components/Scales.js";
+import { SchedulingRule } from "./rules/SchedulingRule";
+import { WeekendRestrictionRule, HolidayRestrictionRule, CollisionRule, ThreeDayRestRule } from "./rules/ConcreteRules";
 
 export type CreateScaleParams = {
   month: number; // 1 to 12
@@ -28,11 +30,19 @@ export class ScaleService {
   private repository;
   private employeeRepository;
   private db: any;
+  private rules: SchedulingRule[];
 
   constructor(db: any) {
     this.db = db;
     this.repository = new ScaleRepository(db);
     this.employeeRepository = new EmployeeRepository(db);
+
+    this.rules = [
+      new WeekendRestrictionRule(),
+      new HolidayRestrictionRule(),
+      new CollisionRule(),
+      new ThreeDayRestRule()
+    ];
   }
 
   getScale(params: any) {
@@ -58,7 +68,6 @@ export class ScaleService {
     try {
       const { month, year, employeeIds, holidays } = createScaleSchema.parse(params);
 
-      // Collect all employee IDs from both scales
       const allEmployeeIds = [
         ...employeeIds.ETA.map(emp => emp.id),
         ...employeeIds.PLANTAO_TARDE.map(emp => emp.id)
@@ -74,7 +83,6 @@ export class ScaleService {
         email: string;
       }
 
-      // Get employee details with restrictions from database
       const employeesWithRestrictions: EmployeeDatabase[] = this.employeeRepository.findByIds(allEmployeeIds);
 
       const mappedEmployees = employeesWithRestrictions
@@ -88,14 +96,12 @@ export class ScaleService {
             : e.restrictions.split(",") as ('WEEKENDS' | 'HOLYDAYS')[],
         }));
 
-      // Buscar shifts do mês anterior para manter continuidade do ciclo
       const previousMonth = month === 1 ? 12 : month - 1;
       const previousYear = month === 1 ? year - 1 : year;
       const previousMonthString = `${previousYear}-${previousMonth.toString().padStart(2, '0')}`;
 
       let previousMonthShifts: ScaleShift[] = [];
 
-      // Buscar shifts de ambas as escalas do mês anterior
       const etaScalePrevious = this.repository.findByMonthAndType(previousMonthString, 'ETA');
       const plantaoScalePrevious = this.repository.findByMonthAndType(previousMonthString, 'PLANTAO_TARDE');
 
@@ -211,47 +217,36 @@ export class ScaleService {
       const idsToRemove = currentlyAllocatedIds.filter((id: string) => !finalSet.has(id));
 
       if (!force && idsToAdd.length > 0) {
-        // Buscar o tipo da escala
         const scaleType = this.repository.getScaleType(scaleId);
 
         const violations: string[] = [];
-        const dateObj = new Date(date + 'T12:00:00');
-        const dayOfWeek = dateObj.getDay();
-        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-
-        const dayOfMonth = parseInt(date.split('-')[2], 10);
-
-        const isHoliday = this.repository.isHoliday(scaleId, dayOfMonth);
 
         type EmployeeData = { id: string, name: string, restrictions: string | null };
         const employeesToCheck: EmployeeData[] = this.employeeRepository.findByIds(idsToAdd);
 
         for (const employee of employeesToCheck) {
           const employeeName = employee.name;
+          const restrictions = employee.restrictions ? employee.restrictions.split(',') : [];
 
-          let restrictions: string[] = [];
-          if (employee.restrictions) {
-            restrictions = employee.restrictions.split(',');
-          }
+          const employeeData = { 
+            id: employee.id, 
+            name: employeeName, 
+            restrictions 
+          };
 
-          if (isWeekend && restrictions.includes('WEEKENDS')) {
-            violations.push(`${employeeName} possui restrição para Finais de Semana.`);
-          }
+          const context = {
+            employee: employeeData,
+            date: date,
+            scaleType: scaleType,
+            scaleId: scaleId,
+            repository: this.repository,
+            db: this.db
+          };
 
-          if (isHoliday && restrictions.includes('HOLYDAYS')) {
-            violations.push(`${employeeName} possui restrição para Feriados.`);
-          }
-
-          const hasShift = this.repository.hasShiftOnDate(employee.id, date);
-          if (hasShift) {
-            violations.push(`${employeeName} já está alocado em outra escala neste dia.`);
-          }
-
-          // Regra D: Descanso de 3 dias (Exclusiva ETA)
-          if (scaleType === 'ETA') {
-            const violatesRest = this.checkETARestRule(scaleId, employee.id, date);
-            if (violatesRest) {
-              violations.push(`${employeeName} não cumpre o descanso obrigatório de 3 dias da ETA.`);
+          for (const rule of this.rules) {
+            const error = rule.validate(context);
+            if (error) {
+                violations.push(error);
             }
           }
         }
@@ -287,10 +282,8 @@ export class ScaleService {
     try {
       const { date, scaleType, scaleId } = getDayModalDataSchema.parse(params);
 
-      // 1. Busca todos os funcionários elegíveis para esse tipo de escala
       const eligibleEmployees = this.employeeRepository.findEligible(scaleType);
 
-      // 2. Busca apenas os IDs dos que JÁ estão trabalhando nesse dia e escala
       const allocatedEmployeeIds = this.repository.getShiftsByDay(scaleId, date);
 
       return {
@@ -308,7 +301,6 @@ export class ScaleService {
     }
   }
 
-  // Verificar se há colisão (funcionário já alocado nesta data)
   checkCollision(scaleId: string, employeeId: string, date: string, scaleType: string): boolean {
     const stmt = this.db.prepare(`
       SELECT COUNT(*) as count 
@@ -321,10 +313,8 @@ export class ScaleService {
     return result.count > 0;
   }
 
-  // Verificar regra de 3 dias de folga para ETA (Bidirecional)
   checkETARestRule(scaleId: string, employeeId: string, newDate: string): boolean {
     try {
-      // Buscar todos os turnos do funcionário nesta escala
       const stmt = this.db.prepare(`
         SELECT date FROM scale_shifts 
         WHERE scale_id = ? AND employee_id = ?
@@ -333,7 +323,6 @@ export class ScaleService {
 
       const shifts = stmt.all(scaleId, employeeId) as Array<{ date: string }>;
 
-      // Converter newDate para número de dia (ex: 15)
       const newDay = parseInt(newDate.split('-')[2], 10);
 
       for (const shift of shifts) {
@@ -342,11 +331,11 @@ export class ScaleService {
         const diff = Math.abs(newDay - shiftDay);
 
         if (diff > 0 && diff < 4) {
-          return true; // Violação detectada
+          return true;
         }
       }
 
-      return false; // Tudo limpo
+      return false;
     } catch (error) {
       console.error('Erro ao verificar regra de ETA:', error);
       return false;
@@ -355,35 +344,31 @@ export class ScaleService {
 
   checkRestrictions(scaleId: string, employeeId: string, date: string): string | null {
     try {
-      const dateObj = new Date(date + 'T12:00:00'); // T12 para evitar problemas de fuso
-      const dayOfWeek = dateObj.getDay(); // 0 = Dom, 6 = Sáb
+      const dateObj = new Date(date + 'T12:00:00');
+      const dayOfWeek = dateObj.getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
       const dayOfMonth = parseInt(date.split('-')[2], 10);
       const isHoliday = this.repository.isHoliday(scaleId, dayOfMonth);
 
-      // Busca dados do funcionário para ver as restrições
-      // findByIds retorna um array, pegamos o primeiro
       const employees = this.employeeRepository.findByIds([employeeId]);
       if (employees.length === 0) return null;
 
       const employee = employees[0];
       const restrictions = employee.restrictions ? employee.restrictions.split(',') : [];
 
-      // Regra: Fim de Semana
       if (isWeekend && restrictions.includes('WEEKENDS')) {
         return `O funcionário ${employee.name} possui restrição para Finais de Semana.`;
       }
 
-      // Regra: Feriados
       if (isHoliday && restrictions.includes('HOLYDAYS')) {
         return `O funcionário ${employee.name} possui restrição para Feriados.`;
       }
 
-      return null; // Nenhuma restrição violada
+      return null;
     } catch (error) {
       console.error("Erro ao verificar restrições:", error);
-      return null; // Em caso de erro técnico, deixamos passar (ou lance erro se preferir rigor)
+      return null;
     }
   }
 
@@ -398,17 +383,14 @@ export class ScaleService {
       console.log('EmployeeIds ETA:', employeeIds.ETA);
       console.log('EmployeeIds PLANTAO_TARDE:', employeeIds.PLANTAO_TARDE);
 
-      // Calcular o range de datas do mês
       const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
       const lastDay = new Date(year, month, 0).getDate();
       const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
       console.log('Range de datas:', startDate, 'até', endDate);
 
-      // Limpar sobreavisos existentes para o mesmo período
       this.repository.deleteSobreavisosByDateRange(startDate, endDate);
 
-      // Criar novos sobreavisos
       const sobreavisos = [];
 
       // Adicionar ETA
