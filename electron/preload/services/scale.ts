@@ -301,75 +301,38 @@ export class ScaleService {
     }
   }
 
-  checkCollision(scaleId: string, employeeId: string, date: string, scaleType: string): boolean {
-    const stmt = this.db.prepare(`
-      SELECT COUNT(*) as count 
-      FROM scale_shifts 
-      WHERE employee_id = ? AND date = ?
-    `);
+  validateAllocation(scaleId: string, scaleType: string, employeeId: string, date: string): string[] {
+    const violations: string[] = [];
 
-    const result = stmt.get(employeeId, date) as { count: number };
-
-    return result.count > 0;
-  }
-
-  checkETARestRule(scaleId: string, employeeId: string, newDate: string): boolean {
-    try {
-      const stmt = this.db.prepare(`
-        SELECT date FROM scale_shifts 
-        WHERE scale_id = ? AND employee_id = ?
-        ORDER BY date ASC
-      `);
-
-      const shifts = stmt.all(scaleId, employeeId) as Array<{ date: string }>;
-
-      const newDay = parseInt(newDate.split('-')[2], 10);
-
-      for (const shift of shifts) {
-        const shiftDay = parseInt(shift.date.split('-')[2], 10);
-
-        const diff = Math.abs(newDay - shiftDay);
-
-        if (diff > 0 && diff < 4) {
-          return true;
-        }
-      }
-
-      return false;
-    } catch (error) {
-      console.error('Erro ao verificar regra de ETA:', error);
-      return false;
+    const employees = this.employeeRepository.findByIds([employeeId]);
+    if (!employees || employees.length === 0) {
+      return ["Funcionário não encontrado."];
     }
-  }
+    
+    const employee = employees[0];
+    const restrictions = employee.restrictions ? employee.restrictions.split(',') : [];
 
-  checkRestrictions(scaleId: string, employeeId: string, date: string): string | null {
-    try {
-      const dateObj = new Date(date + 'T12:00:00');
-      const dayOfWeek = dateObj.getDay();
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    const context = {
+      employee: { 
+        id: employee.id, 
+        name: employee.name, 
+        restrictions 
+      },
+      date: date,
+      scaleType: scaleType,
+      scaleId: scaleId,
+      repository: this.repository,
+      db: this.db
+    };
 
-      const dayOfMonth = parseInt(date.split('-')[2], 10);
-      const isHoliday = this.repository.isHoliday(scaleId, dayOfMonth);
-
-      const employees = this.employeeRepository.findByIds([employeeId]);
-      if (employees.length === 0) return null;
-
-      const employee = employees[0];
-      const restrictions = employee.restrictions ? employee.restrictions.split(',') : [];
-
-      if (isWeekend && restrictions.includes('WEEKENDS')) {
-        return `O funcionário ${employee.name} possui restrição para Finais de Semana.`;
+    for (const rule of this.rules) {
+      const error = rule.validate(context);
+      if (error) {
+        violations.push(error);
       }
-
-      if (isHoliday && restrictions.includes('HOLYDAYS')) {
-        return `O funcionário ${employee.name} possui restrição para Feriados.`;
-      }
-
-      return null;
-    } catch (error) {
-      console.error("Erro ao verificar restrições:", error);
-      return null;
     }
+
+    return violations;
   }
 
   createSobreaviso(params: any) {

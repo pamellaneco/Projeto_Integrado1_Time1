@@ -147,7 +147,6 @@ ipcMain.handle('get-all-employees', async (_, params) => {
   return employeeService.getPaginated(params);
 });
 
-// Handler para mover shift via drag-drop
 ipcMain.handle('move-shift-drag-drop', async (_, params) => {
   try {
     const { scaleId, scaleType, employeeId, oldDate, newDate, force } = params;
@@ -156,40 +155,13 @@ ipcMain.handle('move-shift-drag-drop', async (_, params) => {
       return { success: false, error: 'Parâmetros inválidos' };
     }
 
-    const violations = [];
-
-    // 1. Validação: Colisão (Já trabalha nesse dia?)
-    const hasCollisionOnNewDate = scaleService.checkCollision(
-      scaleId,
-      employeeId,
-      newDate,
-      scaleType
+    const violations = scaleService.validateAllocation(
+      scaleId, 
+      scaleType, 
+      employeeId, 
+      newDate
     );
 
-    if (hasCollisionOnNewDate) {
-      violations.push(`O funcionário já está alocado neste dia (${newDate}).`);
-    }
-
-    // 2. Validação: Restrições do Funcionário (Fim de semana / Feriado)
-    const restrictionError = scaleService.checkRestrictions(scaleId, employeeId, newDate);
-    if (restrictionError) {
-      violations.push(restrictionError);
-    }
-
-    // 3. Validação: Regra de Descanso ETA (3 dias)
-    if (scaleType === 'ETA') {
-      const violatesRestRule = scaleService.checkETARestRule(
-        scaleId,
-        employeeId,
-        newDate
-      );
-
-      if (violatesRestRule) {
-        violations.push('O funcionário não cumpre o descanso mínimo de 3 dias.');
-      }
-    }
-
-    // 4. Verificação Final e Confirmação
     if (violations.length > 0 && !force) {
       return {
         success: false,
@@ -198,7 +170,6 @@ ipcMain.handle('move-shift-drag-drop', async (_, params) => {
       };
     }
 
-    // 5. Execução (Salvar no banco)
     scaleService.repository.removeShift(scaleId, employeeId, oldDate);
     scaleService.repository.addShift(scaleId, employeeId, newDate);
 
