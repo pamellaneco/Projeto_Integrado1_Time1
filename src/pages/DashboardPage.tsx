@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import './DashboardPage.css';
-import { getScale, createSobreaviso, getSobreavisosByDate } from '../ipc-bridge/scale';
-import { getAllEmployees, sendSobreavisoNotifications } from '../ipc-bridge/employee';
+import api from '../ipc-bridge/facade';
 import FuncionarioModal from '../components/funcionarioModal/FuncionarioModal';
 import CreateScaleModal from '../components/createScaleModal/CreateScaleModal';
 
@@ -45,8 +44,8 @@ const DashboardPage: React.FC = () => {
       console.log('Month:', monthString);
 
       const [etaResult, plantaoResult] = await Promise.all([
-        getScale({ month: monthString, type: 'ETA' }),
-        getScale({ month: monthString, type: 'PLANTAO_TARDE' })
+        api.scales.get({ month: monthString, type: 'ETA' }),
+        api.scales.get({ month: monthString, type: 'PLANTAO_TARDE' })
       ]);
 
       console.log('ETA Result:', etaResult);
@@ -189,7 +188,7 @@ const DashboardPage: React.FC = () => {
 
   const handleEmployeeClick = async (employeeId: string) => {
     try {
-      const response: any = await getAllEmployees({ page: 1, limit: 1000, searchTerm: '' });
+      const response: any = await api.employees.getAll({ page: 1, limit: 1000, searchTerm: '' });
       const employee = response.employees.find((emp: any) => emp.id === employeeId);
       if (employee) {
         setSelectedEmployee(employee);
@@ -257,7 +256,7 @@ const DashboardPage: React.FC = () => {
     console.log('=== CRIANDO SOBREAVISO ===');
     console.log('Payload recebido:', result);
     try {
-      const sobreavisoResult = await createSobreaviso(result);
+      const sobreavisoResult = await api.sobreavisos.create(result);
       console.log('Resposta do servidor:', sobreavisoResult);
 
       if (sobreavisoResult?.error) {
@@ -306,7 +305,7 @@ const DashboardPage: React.FC = () => {
         console.log("Funcionários para enviar email de sobreaviso", employees);
 
         if (employees.length > 0) {
-          const emailResult = await sendSobreavisoNotifications({ employees, date });
+          const emailResult = await api.employees.sendSobreavisoNotifications({ employees, date });
 
           if (emailResult.failed > 0) {
             toast.error(`Sobreavisos criados! ${emailResult.failed} email(s) não puderam ser enviados.`);

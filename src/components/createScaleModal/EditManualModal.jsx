@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 // Importamos a busca de todos os funcionários e dados do dia
-import { findEligibleEmployees } from '../../ipc-bridge/employee';
-import { getDayModalData, updateManualShifts } from '../../ipc-bridge/scale';
+import api from '../../ipc-bridge/facade';
 import ConflictModal from '../modal/ConflictModal';
 import './CreateScaleModal.css';
 
@@ -33,7 +32,7 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
             setLoading(true);
             try {
                 // 1. Busca TODOS os funcionários elegíveis (sem filtro inicial)
-                const allEmployees = await findEligibleEmployees({});
+                const allEmployees = await api.employees.findEligible({});
                 setEmployees(allEmployees || []);
 
                 // 2. Busca alocações atuais para ETA e PLANTAO_TARDE em paralelo
@@ -43,7 +42,7 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
                 // Se a escala ETA existe, busca quem está nela hoje
                 if (scaleIds?.ETA) {
                     promises.push(
-                        getDayModalData({ date, scaleId: scaleIds.ETA, scaleType: 'ETA' })
+                        api.scales.getDayModalData({ date, scaleId: scaleIds.ETA, scaleType: 'ETA' })
                             .then(res => {
                                 if (res.allocatedEmployeeIds) newAllocations.ETA = res.allocatedEmployeeIds;
                             })
@@ -53,7 +52,7 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
                 // Se a escala TARDE existe, busca quem está nela hoje
                 if (scaleIds?.PLANTAO_TARDE) {
                     promises.push(
-                        getDayModalData({ date, scaleId: scaleIds.PLANTAO_TARDE, scaleType: 'PLANTAO_TARDE' })
+                        api.scales.getDayModalData({ date, scaleId: scaleIds.PLANTAO_TARDE, scaleType: 'PLANTAO_TARDE' })
                             .then(res => {
                                 if (res.allocatedEmployeeIds) newAllocations.PLANTAO_TARDE = res.allocatedEmployeeIds;
                             })
@@ -105,7 +104,7 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
                     force
                 };
                 scaleRequests.push({ type: 'ETA', request });
-                promises.push(updateManualShifts(request));
+                promises.push(api.scales.updateManualShifts(request));
             }
 
             // Salva alterações do PLANTAO_TARDE (se escala existir)
@@ -117,7 +116,7 @@ function EditManualModal({ isOpen, onClose, onComplete, date, scaleIds }) {
                     force
                 };
                 scaleRequests.push({ type: 'PLANTAO_TARDE', request });
-                promises.push(updateManualShifts(request));
+                promises.push(api.scales.updateManualShifts(request));
             }
 
             const results = await Promise.all(promises);

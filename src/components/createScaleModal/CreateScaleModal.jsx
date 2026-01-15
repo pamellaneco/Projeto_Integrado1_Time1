@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { findEligibleEmployees } from '../../ipc-bridge/employee';
-import { createScale } from '../../ipc-bridge/scale';
+import api from '../../ipc-bridge/facade';
 import './CreateScaleModal.css';
 
 function CreateScaleModal({ isOpen, onClose, onSubmit, month, year, skipHolidays = false, allEmpty = false }) {
@@ -23,7 +22,7 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year, skipHolidays
 
     const loadEmployees = async () => {
         try {
-            const employees = await findEligibleEmployees();
+            const employees = await api.employees.findEligible();
             if (!Array.isArray(employees)) setEmployees([]);
 
             setEmployees(employees);
@@ -107,7 +106,7 @@ function CreateScaleModal({ isOpen, onClose, onSubmit, month, year, skipHolidays
                 return;
             }
 
-            const result = await createScale(payload);
+            const result = await api.scales.create(payload);
 
             onSubmit(result);
             onClose();

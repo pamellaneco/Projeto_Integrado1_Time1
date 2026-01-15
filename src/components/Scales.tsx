@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import './Scales.css';
-import { getScale, moveShiftDragDrop } from '../ipc-bridge/scale';
+import api from '../ipc-bridge/facade';
 import CreateScaleModal from './createScaleModal/CreateScaleModal';
 import EditManualModal from './createScaleModal/EditManualModal';
 import ConfirmationModal from './modal/ConfirmationModal';
@@ -57,8 +57,8 @@ const Scales: React.FC = () => {
       const monthString = `${year}-${month}`;
 
       const [etaResult, plantaoResult] = await Promise.all([
-        getScale({ month: monthString, type: 'ETA' }),
-        getScale({ month: monthString, type: 'PLANTAO_TARDE' })
+        api.scales.get({ month: monthString, type: 'ETA' }),
+        api.scales.get({ month: monthString, type: 'PLANTAO_TARDE' })
       ]);
 
       setScaleIds({
@@ -242,7 +242,7 @@ const Scales: React.FC = () => {
     };
 
     try {
-      const result = await moveShiftDragDrop(moveParams);
+      const result = await api.scales.moveShift(moveParams);
 
       // CASO A: Backend pede confirmação
       if (!result.success && result.requireConfirmation) {
@@ -289,7 +289,7 @@ const Scales: React.FC = () => {
     if (!dragConflictModal.pendingMove) return;
 
     try {
-      const result = await moveShiftDragDrop(dragConflictModal.pendingMove);
+      const result = await api.scales.moveShift(dragConflictModal.pendingMove);
 
       if (result.success) {
         await fetchScale();

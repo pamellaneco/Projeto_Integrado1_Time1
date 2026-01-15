@@ -3,7 +3,7 @@ import { generateScaleDocx } from "./docx-generator";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale"
 import { ScaleShift } from "../Scales";
-import { publishScale } from "../../ipc-bridge/scale";
+import api from "../../ipc-bridge/facade";
 import ConfirmationModal from "../modal/ConfirmationModal";
 import { render } from "@react-email/components";
 import { ScalePublicationEmail } from "../../../electron/preload/external/mailer/templates/publication";
@@ -38,7 +38,7 @@ export const PublishScaleButton: FC<PublishScaleButtonProps> = ({
         <ScalePublicationEmail monthName={monthName} year={year} />
       );
 
-      const result = await publishScale({
+      const result = await api.scales.publish({
         scaleDate: scaleDate.toISOString(),
         shifts,
         monthName,

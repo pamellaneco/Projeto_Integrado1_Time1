@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getAllEmployees, deleteEmployee, createEmployee, updateEmployee } from '../ipc-bridge/employee.js';
+import api from '../ipc-bridge/facade.js';
 import SearchIcon from './SearchIcon';
 import FuncionarioModal from './funcionarioModal/FuncionarioModal.jsx';
 import './EmployeesTable.css';
@@ -40,7 +40,7 @@ function EmployeesTable() {
       setLoading(true);
       setError(null);
 
-      const response = await getAllEmployees({
+      const response = await api.employees.getAll({
         page: currentPage,
         limit: ITEMS_PER_PAGE,
         searchTerm: searchTerm
@@ -119,7 +119,7 @@ function EmployeesTable() {
 
   const handleCreate = async (payload) => {
     try {
-      await createEmployee(payload);
+      await api.employees.create(payload);
       fetchEmployees();
     } catch (error) {
       setError(error.message || "Erro desconhecido");
@@ -128,7 +128,7 @@ function EmployeesTable() {
 
   const handleUpdate = async (payload) => {
     try {
-      await updateEmployee(payload);
+      await api.employees.update(payload);
       fetchEmployees();
     } catch (error) {
       setError(error.message || "Erro desconhecido");
@@ -137,7 +137,7 @@ function EmployeesTable() {
 
   const handleDelete = async (id) => {
     try {
-      await deleteEmployee(id);
+      await api.employees.delete(id);
 
       setRefreshKey((prevKey) => prevKey + 1);
       if (allEmployees.length === 1 && currentPage > 1) {
